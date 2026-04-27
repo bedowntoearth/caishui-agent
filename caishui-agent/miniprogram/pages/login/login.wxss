@@ -1,0 +1,39 @@
+/* pages/login/login.wxss */
+.login-container { min-height: 100vh; position: relative; overflow: hidden; }
+.bg-deco {
+  position: absolute; top: -200rpx; right: -200rpx; width: 600rpx; height: 600rpx;
+  border-radius: 50%; background: linear-gradient(135deg, rgba(67,97,238,.15), rgba(58,12,163,.1));
+}
+.bg-deco::after {
+  content:''; position:absolute; bottom:-300rpx; left:-200rpx; width:500rpx; height:500rpx;
+  border-radius:50%; background:linear-gradient(135deg,rgba(46,204,113,.08),rgba(52,152,219,.08));
+}
+
+.content { padding: 80rpx 48rpx; position:relative;z-index:1;display:flex;flex-direction:column;align-items:center; }
+
+.logo-section { text-align:center;margin-bottom:80rpx; }
+.logo-icon { font-size:96rpx;margin-bottom:16rpx; }
+.logo-title { display:block;font-size:44rpx;font-weight:700;color:#1a1a2e;letter-spacing:4rpx; }
+.logo-subtitle { display:block;font-size:26rpx;color:#888;margin-top:10rpx;letter-spacing:2rpx; }
+
+.login-card { width:100%;max-width:600rpx;text-align:center;padding:48rpx 36rpx; }
+.welcome-text { display:block;font-size:36rpx;font-weight:700;color:#1a1a2e;margin-bottom:12rpx; }
+.desc-text { display:block;font-size:25rpx;color:#888;line-height:1.6;margin-bottom:40rpx; }
+
+.btn-login {
+  width:100%;height:96rpx;border-radius:48rpx;background:linear-gradient(135deg,#4361ee,#3a0ca3);
+  color:#fff;font-size:30rpx;font-weight:600;display:flex;align-items:center;justify-content:center;
+  border:none;transition:.3s;box-shadow:0 8rpx 32rpx rgba(67,97,238,.3);
+}
+.btn-login.disabled { opacity:.6; }
+.btn-login::after { border:none; }
+.loading-text { animation:pulse 1.5s infinite; }
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+.tips { margin-top:36rpx; }
+.tip-item { display:flex;align-items:flex-start;gap:8rpx;margin-bottom:14rpx;justify-content:flex-start;padding-left:20rpx;}
+.tip-dot { color:#27ae60;font-weight:700;font-size:24rpx; }
+.tip-item text:last-child { font-size:23rpx;color:#999; }
+
+.footer { margin-top:auto;padding-top:60rpx; text-align:center; }
+.footer text { font-size:22rpx;color:#bbb; }

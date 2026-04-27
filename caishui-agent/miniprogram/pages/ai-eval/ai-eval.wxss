@@ -1,0 +1,106 @@
+/* pages/ai-eval/ai-eval.wxss */
+.page-container {
+  padding: 24rpx;
+  background: #f4f6fb;
+  min-height: 100vh;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 16rpx rgba(0,0,0,.06);
+}
+
+/* 指标信息卡片 */
+.indicator-card {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+.indicator-header {
+  display: flex; align-items: flex-start; gap: 20rpx; margin-bottom: 20rpx;
+}
+.indicator-icon { font-size: 56rpx; }
+.indicator-meta { flex: 1; }
+.indicator-name { font-size: 34rpx; font-weight: 700; color: #fff; display: block; margin-bottom: 12rpx; }
+.level-badge { display: inline-block; padding: 8rpx 22rpx; border-radius: 30rpx; font-size: 24rpx; font-weight: 600; }
+.badge-remind  { background: rgba(255,159,67,.25); color: #ff9f43; border: 1rpx solid rgba(255,159,67,.5); }
+.badge-warning { background: rgba(255,190,0,.2);  color: #ffbe00; border: 1rpx solid rgba(255,190,0,.5); }
+.badge-major   { background: rgba(234,84,85,.25); color: #ff8a8a; border: 1rpx solid rgba(234,84,85,.5); }
+.badge-normal  { background: rgba(40,199,111,.25);color: #28c76f; border: 1rpx solid rgba(40,199,111,.5); }
+
+.indicator-reason { padding-top: 20rpx; border-top: 1rpx solid rgba(255,255,255,.1); }
+.reason-label { font-size: 24rpx; color: rgba(255,255,255,.5); display: block; margin-bottom: 8rpx; }
+.reason-text  { font-size: 26rpx; color: rgba(255,255,255,.85); line-height: 1.7; }
+
+/* AI评估卡片 */
+.eval-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 24rpx;
+}
+.flex-row { display: flex; align-items: center; gap: 12rpx; }
+.ai-icon { font-size: 40rpx; }
+.eval-title { font-size: 30rpx; font-weight: 600; color: #1a1a2e; }
+
+.btn-refresh {
+  display: flex; align-items: center; gap: 6rpx;
+  font-size: 24rpx; color: #4361ee; background: #f0f2ff;
+  border: none; border-radius: 30rpx; padding: 10rpx 24rpx;
+  line-height: 1;
+}
+.btn-refresh-icon { font-size: 28rpx; }
+
+/* 生成中动画 */
+.generating-state { text-align: center; padding: 60rpx 0; }
+.typing-indicator {
+  display: flex; justify-content: center; gap: 12rpx; margin-bottom: 24rpx;
+}
+.typing-indicator .dot {
+  width: 14rpx; height: 14rpx; border-radius: 50%;
+  background: #4361ee; animation: bounce .6s infinite alternate;
+}
+.typing-indicator .dot:nth-child(2) { animation-delay: .2s; }
+.typing-indicator .dot:nth-child(3) { animation-delay: .4s; }
+@keyframes bounce { from { transform: translateY(0); opacity: .6; } to { transform: translateY(-12rpx); opacity: 1; } }
+.generating-text { font-size: 26rpx; color: #999; }
+
+/* 错误状态 */
+.error-state { text-align: center; padding: 60rpx 0; }
+.error-icon  { font-size: 60rpx; display: block; margin-bottom: 16rpx; }
+.error-text  { font-size: 28rpx; color: #ea5455; display: block; margin-bottom: 24rpx; }
+.btn-retry {
+  background: #ea5455; color: #fff; border: none;
+  border-radius: 40rpx; padding: 16rpx 48rpx; font-size: 26rpx;
+}
+
+/* 评估内容 */
+.eval-content { padding: 4rpx 0; }
+.eval-text {
+  font-size: 28rpx; color: #333; line-height: 1.9;
+  display: block; word-break: break-all;
+}
+
+/* 空状态 */
+.empty-eval { text-align: center; padding: 40rpx; color: #bbb; font-size: 26rpx; }
+
+/* 操作按钮 */
+.action-area { padding: 0 0 12rpx; }
+.btn-primary {
+  width: 100%; background: linear-gradient(135deg,#4361ee,#3a0ca3);
+  color: #fff; border: none; border-radius: 50rpx;
+  padding: 28rpx; font-size: 30rpx; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 12rpx;
+  box-shadow: 0 8rpx 24rpx rgba(67,97,238,.4);
+}
+.btn-secondary {
+  width: 100%; background: #fff; color: #4361ee; border: 2rpx solid #4361ee;
+  border-radius: 50rpx; padding: 26rpx; font-size: 28rpx;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-primary:active  { opacity: .85; }
+.btn-secondary:active { background: #f0f2ff; }
+
+/* 免责声明 */
+.disclaimer {
+  text-align: center; padding: 20rpx; color: #bbb; font-size: 22rpx;
+  line-height: 1.6; margin-bottom: 40rpx;
+}

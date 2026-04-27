@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财税智能体系统 - 小程序用户管理</title>
+    <style>
+        :root { --primary:#4361ee; --primary-dark:#3a0ca3; --success:#2ecc71; --warning:#f39c12; --danger:#e74c3c; --info:#3498db;
+            --sidebar-w:240px; --header-h:60px; --bg:#f4f6fa; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif; }
+        body { background:var(--bg); display:flex; min-height:100vh; }
+        .sidebar { width:var(--sidebar-w); background:linear-gradient(180deg,#1a1a2e 0%,#16213e 100%); color:#fff; position:fixed; top:0; left:0; height:100vh; overflow-y:auto; z-index:100; transition:.3s; flex-shrink:0; }
+        .sidebar-logo { padding:20px 20px 16px; border-bottom:1px solid rgba(255,255,255,.08); display:flex; align-items:center; gap:10px; }
+        .sidebar-logo .icon { font-size:28px; }
+        .sidebar-logo span { font-size:17px; font-weight:700; letter-spacing:1px; }
+        .nav-item { padding:12px 24px; cursor:pointer; display:flex; align-items:center; gap:10px; color:rgba(255,255,255,.7); transition:.2s; font-size:14px; border-left:3px solid transparent; user-select:none; }
+        .nav-item:hover { color:#fff; background:rgba(255,255,255,.06); }
+        .nav-item.active { color:#fff; background:rgba(67,97,238,.2); border-left-color:var(--primary); }
+        .nav-item i { width:22px; text-align:center; font-size:16px; }
+        .nav-section { padding:16px 20px 6px; font-size:11px; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1.5px; margin-top:8px; }
+        .sidebar-bottom { padding:16px 20px; border-top:1px solid rgba(255,255,255,.08); position:absolute; bottom:0; width:100%; }
+        .main-wrap { margin-left:var(--sidebar-w); flex:1; min-width:0; display:flex; flex-direction:column; }
+        .header { height:var(--header-h); background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.06); display:flex; align-items:center; justify-content:space-between; padding:0 28px; position:sticky; top:0; z-index:50; }
+        .header-left h2 { font-size:18px; color:#333; }
+        .header-right { display:flex; align-items:center; gap:18px; }
+        .user-info { display:flex; align-items:center; gap:8px; font-size:13px; color:#555; cursor:pointer; }
+        .user-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px; }
+        .content { padding:28px; flex:1; }
+        .card { background:#fff; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,.04); overflow:hidden; margin-bottom:20px; }
+        .card-header { padding:18px 24px; border-bottom:1px solid #f0f0f0; font-size:15px; color:#333; font-weight:600; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+        .card-body.p-0 { padding:0; }
+        .card-footer { padding:14px 24px; border-top:1px solid #f0f0f0; background:#fafafa; display:flex; justify-content:space-between; align-items:center; }
+        table { width:100%; border-collapse:collapse; }
+        th { background:#fafafa; padding:11px 14px; text-align:left; font-size:13px; color:#666; font-weight:600; border-bottom:1px solid #eee; white-space:nowrap; }
+        td { padding:11px 14px; font-size:13.5px; color:#444; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
+        tr:hover { background:#fcfdff; }
+        .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:500; }
+        .badge-green{background:#eafaf1;color:#27ae60} .badge-red{background:#fdedec;color:#e74c3c}
+        .badge-yellow{background:#fef9e7;color:#d68910} .badge-blue{background:#ebf5fb;color:#2980b9}
+        .empty-state { text-align:center; padding:48px 20px; color:#aaa; }
+        .toast-container { position:fixed; top:20px; right:20px; z-index:300; }
+        .toast { background:#333; color:#fff; padding:12px 20px; border-radius:10px; margin-bottom:8px; font-size:13px; box-shadow:0 4px 15px rgba(0,0,0,.15); animation:toastIn .3s ease; }
+        .toast.success{background:#27ae60}.toast.danger{background:#e74c3c}.toast.warning{background:#f39c12}.toast.info{background:#3498db}
+        @keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+        .btn { display:inline-flex; align-items:center; gap:5px; padding:8px 18px; border:none; border-radius:8px; font-size:13px; cursor:pointer; transition:.2s; font-weight:500; white-space:nowrap; text-decoration:none; }
+        .btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:#3555d9}
+        .btn-secondary{background:#e9ecef;color:#495057}.btn-secondary:hover{background:#dee2e6}
+        .form-control,.form-select { padding:7px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; outline:none; transition:.2s; }
+        .form-control:focus,.form-select:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(67,97,238,.1); }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); z-index:200; align-items:center; justify-content:center; }
+        .modal.show { display:flex; }
+        .modal-dialog { background:#fff; border-radius:14px; width:500px; max-width:95vw; max-height:90vh; overflow:auto; }
+        .modal-header { padding:18px 24px; border-bottom:1px solid #f0f0f0; display:flex; justify-content:space-between; align-items:center; }
+        .modal-body { padding:20px 24px; }
+        .modal-footer { padding:14px 24px; border-top:1px solid #f0f0f0; display:flex; justify-content:flex-end; gap:10px; }
+        .modal-title { font-size:16px; font-weight:600; }
+        .btn-close { background:none; border:none; font-size:20px; cursor:pointer; color:#888; }
+        .text-muted{color:#aaa}.text-danger{color:#e74c3c}.small{font-size:12px}
+        .stat-card { background:#fff; border-radius:12px; padding:20px 24px; box-shadow:0 2px 8px rgba(0,0,0,.04); display:flex; align-items:center; gap:16px; }
+        .stat-icon { width:50px; height:50px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; }
+        .stat-label { font-size:13px; color:#888; margin-bottom:4px; }
+        .stat-value { font-size:24px; font-weight:700; color:#333; }
+        .pagination { display:flex; list-style:none; gap:4px; }
+        .page-link { padding:5px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:12px; cursor:pointer; color:#555; text-decoration:none; }
+        .page-item.active .page-link { background:var(--primary); color:#fff; border-color:var(--primary); }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-logo"><span class="icon">🧾</span><span>财税智能体</span></div>
+    <div class="nav-section">📊 核心功能</div>
+    <div class="nav-item" onclick="location.href='/admin/dashboard'"><i>📋</i> 数据总览</div>
+    <div class="nav-item" onclick="location.href='/admin/companies'"><i>🏢</i> 企业信息管理</div>
+    <div class="nav-item" onclick="location.href='/admin/risk-indicators'"><i>⚠️</i> 风险指标管理</div>
+    <div class="nav-section">⚙️ 系统设置</div>
+    <div class="nav-item" onclick="location.href='/admin/users'"><i>👥</i> 系统用户管理</div>
+    <div class="nav-item active"><i>📱</i> 小程序用户管理</div>
+    <div class="nav-item" onclick="location.href='/admin/llm-config'"><i>🤖</i> 大模型配置</div>
+    <div class="sidebar-bottom">
+        <div class="user-info" style="justify-content:space-between;width:100%;">
+            <span id="currentUserName">管理员</span>
+            <button class="btn btn-outline-secondary btn-sm" style="border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.7);padding:4px 10px;font-size:12px;border-radius:6px;background:transparent;cursor:pointer;" onclick="doLogout()">退出登录</button>
+        </div>
+    </div>
+</div>
+
+<!-- Main -->
+<div class="main-wrap">
+    <div class="header">
+        <div class="header-left"><h2>小程序用户管理</h2></div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <span id="headerUserName">管理员</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- 统计卡片 -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#eef1ff;">📱</div>
+                <div>
+                    <div class="stat-label">微信用户总数</div>
+                    <div class="stat-value" id="totalCount">--</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#eafaf1;">🏢</div>
+                <div>
+                    <div class="stat-label">已绑定企业</div>
+                    <div class="stat-value" id="boundCount">--</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef9e7;">❓</div>
+                <div>
+                    <div class="stat-label">未绑定企业</div>
+                    <div class="stat-value" id="unboundCount">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户列表 -->
+        <div class="card">
+            <div class="card-header">
+                <h6 style="margin:0;font-weight:600;">微信小程序用户</h6>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <input id="searchInput" class="form-control" style="width:200px" placeholder="搜索手机号" oninput="debounceLoad()">
+                    <select id="bindFilter" class="form-select" style="width:130px" onchange="loadUsers(1)">
+                        <option value="">全部用户</option>
+                        <option value="bound">已绑定企业</option>
+                        <option value="unbound">未绑定企业</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>手机号</th>
+                            <th>OpenID（脱敏）</th>
+                            <th>绑定企业</th>
+                            <th>最后登录</th>
+                            <th>注册时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <tr><td colspan="7" class="empty-state">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted" id="pageInfo"></small>
+                <ul class="pagination mb-0" id="pagination"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal" id="editModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">编辑小程序用户</h5>
+                <button type="button" class="btn-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editUserId">
+                <div style="margin-bottom:14px;">
+                    <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">手机号</label>
+                    <input class="form-control" id="editPhone" placeholder="用户手机号" style="width:100%;">
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">绑定企业</label>
+                    <select class="form-select" id="editCompanySelect" style="width:100%;">
+                        <option value="">不绑定</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">取消</button>
+                <button type="button" class="btn btn-primary" onclick="saveEdit()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API = '/api/v1';
+const token = localStorage.getItem('access_token') || '';
+
+function authHeaders() {
+    const headers = {'Content-Type': 'application/json'};
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    return headers;
+}
+
+async function api(url, opts={}) {
+    const res = await fetch(API + url, {...opts, headers:{...authHeaders(),...(opts.headers||{})}, credentials:'include'});
+    if (res.status === 401) { localStorage.clear(); location.href='/admin/login'; return null; }
+    return res;
+}
+
+function showToast(msg, type='info') {
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+async function doLogout() {
+    await api('/auth/logout', {method:'POST'});
+    localStorage.clear();
+    location.href='/admin/login';
+}
+
+let currentPage = 1;
+const pageSize = 15;
+let debounceTimer = null;
+let allCompanies = [];
+
+function debounceLoad() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => loadUsers(1), 300);
+}
+
+async function loadCompanies() {
+    try {
+        const res = await api('/companies/simple-list');
+        if (!res) return;
+        const data = await res.json();
+        if (data.code === 200) {
+            allCompanies = data.data || [];
+        }
+    } catch(e) { /* ignore */ }
+}
+
+async function loadUsers(page = 1) {
+    const tbody = document.getElementById('userTableBody');
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">加载中...</td></tr>';
+    try {
+        const keyword = document.getElementById('searchInput').value.trim();
+        const bindFilter = document.getElementById('bindFilter').value;
+        const params = new URLSearchParams({ page, size: pageSize });
+        if (keyword) params.set('keyword', keyword);
+        if (bindFilter) params.set('has_company', bindFilter);
+        const res = await api(`/users/?${params}`);
+        if (!res) return;
+        const data = await res.json();
+        if (data.code !== 200) {
+            tbody.innerHTML = `<tr><td colspan="7" class="empty-state">加载失败: ${data.message || '未知错误'}</td></tr>`;
+            return;
+        }
+        const { items, total, total_all, total_bound, total_unbound } = data.data;
+
+        currentPage = page;
+        document.getElementById('pageInfo').textContent = `共 ${total} 条`;
+
+        // 更新统计（使用后端返回的全局统计数，不受筛选影响）
+        document.getElementById('totalCount').textContent = total_all ?? total;
+        document.getElementById('boundCount').textContent = total_bound ?? '--';
+        document.getElementById('unboundCount').textContent = total_unbound ?? '--';
+
+        if (!items || !items.length) {
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-state">暂无用户数据</td></tr>';
+            document.getElementById('pagination').innerHTML = '';
+            return;
+        }
+        tbody.innerHTML = items.map(u => `
+        <tr>
+            <td class="text-muted small">${u.id}</td>
+            <td>${u.phone || '<span style="color:#ccc">未授权</span>'}</td>
+            <td class="text-muted small">${u.openid || '--'}</td>
+            <td>${u.company_name ? `<span class="badge badge-green">${u.company_name}</span>` : '<span style="color:#ccc;font-size:12px;">未绑定</span>'}</td>
+            <td class="text-muted small">${u.last_login_at ? new Date(u.last_login_at).toLocaleString('zh-CN') : '--'}</td>
+            <td class="text-muted small">${(u.created_at||'').slice(0,10)}</td>
+            <td>
+                <button style="padding:4px 10px;font-size:12px;border:1.5px solid #ddd;border-radius:6px;background:transparent;cursor:pointer;" onclick='openEditModal(${JSON.stringify(u)})'>编辑</button>
+                <button style="padding:4px 10px;font-size:12px;border:1.5px solid #e74c3c;color:#e74c3c;border-radius:6px;background:transparent;cursor:pointer;" onclick="deleteUser(${u.id}, '${(u.phone||'').replace(/'/g,"\\'")}}')">删除</button>
+            </td>
+        </tr>`).join('');
+        renderPagination(total, page);
+    } catch (err) {
+        console.error('loadUsers error:', err);
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">加载失败: ${err.message}</td></tr>`;
+    }
+}
+
+function renderPagination(total, page) {
+    const pages = Math.ceil(total / pageSize);
+    const ul = document.getElementById('pagination');
+    ul.innerHTML = '';
+    for (let i = 1; i <= Math.min(pages, 10); i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i===page?'active':''}`;
+        li.innerHTML = `<a class="page-link" href="#" onclick="loadUsers(${i});return false;">${i}</a>`;
+        ul.appendChild(li);
+    }
+}
+
+function openEditModal(user) {
+    document.getElementById('editUserId').value = user.id;
+    document.getElementById('editPhone').value = user.phone || '';
+
+    // 填充企业下拉
+    const sel = document.getElementById('editCompanySelect');
+    sel.innerHTML = '<option value="">不绑定</option>';
+    allCompanies.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        if (c.id === user.company_id) opt.selected = true;
+        sel.appendChild(opt);
+    });
+
+    document.getElementById('editModal').classList.add('show');
+}
+
+function closeEditModal() { document.getElementById('editModal').classList.remove('show'); }
+
+async function saveEdit() {
+    const id = document.getElementById('editUserId').value;
+    const phone = document.getElementById('editPhone').value.trim();
+    const company_id = document.getElementById('editCompanySelect').value;
+    try {
+        const res = await api(`/users/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ phone: phone || null, company_id: company_id ? parseInt(company_id) : null })
+        });
+        const data = await res.json();
+        if (data.code === 200) {
+            showToast('更新成功', 'success');
+            closeEditModal();
+            loadUsers(currentPage);
+        } else {
+            showToast(data.message || '更新失败', 'danger');
+        }
+    } catch (err) {
+        showToast('更新失败: ' + err.message, 'danger');
+    }
+}
+
+async function deleteUser(id, phone) {
+    if (!confirm(`确定删除用户「${phone || id}」吗？此操作不可恢复。`)) return;
+    try {
+        const res = await api(`/users/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.code === 200) {
+            showToast('删除成功', 'success');
+            loadUsers(currentPage);
+        } else {
+            showToast(data.message || data.detail || '删除失败', 'danger');
+        }
+    } catch (err) {
+        showToast('删除失败: ' + err.message, 'danger');
+    }
+}
+
+// Page init
+(function() {
+    if (!token) { location.href='/admin/login'; return; }
+    const ui = JSON.parse(localStorage.getItem('user_info') || '{}');
+    const name = ui.real_name || ui.username || '管理员';
+    document.getElementById('currentUserName').textContent = name;
+    document.getElementById('headerUserName').textContent = name;
+    if (ui.real_name) document.getElementById('userAvatar').textContent = ui.real_name.charAt(0).toUpperCase();
+    loadCompanies();
+    loadUsers();
+})();
+</script>
+</body>
+</html>

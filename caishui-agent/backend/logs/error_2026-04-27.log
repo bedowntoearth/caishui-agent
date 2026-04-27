@@ -1,0 +1,2 @@
+2026-04-27 15:09:47.830 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/api/v1/companies/import - name 'parse_import_file' is not defined
+2026-04-27 15:09:56.771 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/api/v1/companies/import - name 'parse_import_file' is not defined

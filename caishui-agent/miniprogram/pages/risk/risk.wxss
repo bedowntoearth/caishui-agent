@@ -1,0 +1,108 @@
+/* pages/risk/risk.wxss */
+.page-container {
+  padding: 24rpx;
+  background: #f4f6fb;
+  min-height: 100vh;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 16rpx rgba(0,0,0,.06);
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-start {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+/* 头部信息 */
+.header-info { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
+.period-label { color: rgba(255,255,255,.6); font-size: 24rpx; display: block; margin-bottom: 6rpx; }
+.period-value { color: #fff; font-size: 30rpx; font-weight: 600; }
+.score-badge {
+  padding: 10rpx 20rpx;
+  border-radius: 40rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #fff;
+}
+.score-badge.good  { background: rgba(40,199,111,.3); border: 1rpx solid rgba(40,199,111,.6); }
+.score-badge.fair  { background: rgba(255,159,67,.3);  border: 1rpx solid rgba(255,159,67,.6); }
+.score-badge.poor  { background: rgba(234,84,85,.3);   border: 1rpx solid rgba(234,84,85,.6); }
+
+/* Loading */
+.loading-spinner {
+  width: 60rpx; height: 60rpx;
+  border: 4rpx solid #e8e8e8;
+  border-top-color: #4361ee;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 20rpx;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { color: #999; font-size: 26rpx; }
+
+/* 空状态 */
+.empty-state { text-align: center; padding: 60rpx 30rpx; }
+.empty-icon  { font-size: 80rpx; display: block; margin-bottom: 20rpx; }
+.empty-title { font-size: 32rpx; color: #333; font-weight: 600; display: block; margin-bottom: 12rpx; }
+.empty-desc  { font-size: 26rpx; color: #999; display: block; line-height: 1.6; }
+
+/* 风险指标卡片 */
+.risk-card {
+  border-left: 8rpx solid transparent;
+  transition: transform .15s;
+}
+.risk-card:active { transform: scale(.98); }
+.bg-success  { border-left-color: #28c76f; }
+.bg-warning  { border-left-color: #ff9f43; }
+.bg-orange   { border-left-color: #ffbe00; }
+.bg-danger   { border-left-color: #ea5455; }
+
+.card-header-row { margin-bottom: 16rpx; }
+.risk-num {
+  width: 40rpx; height: 40rpx; border-radius: 50%;
+  background: #f0f2ff; color: #4361ee;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24rpx; font-weight: 700; flex-shrink: 0;
+}
+.risk-name { font-size: 30rpx; font-weight: 600; color: #1a1a2e; }
+
+/* 风险等级徽章 */
+.badge-normal  { padding: 6rpx 18rpx; border-radius: 30rpx; font-size: 22rpx; background: #e6f9ee; color: #28c76f; }
+.badge-remind  { padding: 6rpx 18rpx; border-radius: 30rpx; font-size: 22rpx; background: #fff5e6; color: #ff9f43; }
+.badge-warning { padding: 6rpx 18rpx; border-radius: 30rpx; font-size: 22rpx; background: #fff8e1; color: #ffbe00; }
+.badge-major   { padding: 6rpx 18rpx; border-radius: 30rpx; font-size: 22rpx; background: #ffeaea; color: #ea5455; }
+
+/* 触发原因 */
+.card-body-row  { margin-bottom: 16rpx; }
+.reason-label { font-size: 24rpx; color: #999; }
+.reason-value { font-size: 26rpx; color: #555; line-height: 1.6; }
+
+/* AI提示 */
+.ai-hint {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16rpx 20rpx; background: #f0f2ff; border-radius: 12rpx;
+  font-size: 24rpx; color: #4361ee;
+}
+.arrow { font-size: 32rpx; }
+
+/* 图例 */
+.legend-title { font-size: 26rpx; color: #999; display: block; margin-bottom: 16rpx; }
+.legend-items { display: flex; gap: 30rpx; flex-wrap: wrap; }
+.legend-item  { display: flex; align-items: center; gap: 10rpx; font-size: 24rpx; color: #555; }
+.dot { width: 16rpx; height: 16rpx; border-radius: 50%; }
+.dot.normal  { background: #28c76f; }
+.dot.remind  { background: #ff9f43; }
+.dot.warning { background: #ffbe00; }
+.dot.major   { background: #ea5455; }

@@ -1,0 +1,103 @@
+<!-- pages/index/index.wxml -->
+<view class="page-container">
+  <!-- 顶部企业信息卡片 -->
+  <view class="header-card">
+    <view class="header-bg"></view>
+    <view class="company-info">
+      <text class="company-name">{{ companyInfo.name || '加载中...' }}</text>
+      <view class="info-row">
+        <text class="info-label">信用代码：</text>
+        <text class="info-value mono">{{ companyInfo.credit_code_masked || '-' }}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">法定代表人：</text>
+        <text class="info-value">{{ companyInfo.legal_person || '-' }}</text>
+        <text class="divider">|</text>
+        <text class="info-label">行业：</text>
+        <text class="info-value">{{ companyInfo.industry || '未填写' }}</text>
+      </view>
+
+      <!-- 服务状态 -->
+      <view class="status-bar {{ isExpiringSoon ? 'expiring' : '' }}">
+        <view class="status-item">
+          <text class="status-dot {{ companyInfo.status === 'active' ? 'active' : '' }}"></text>
+          <text>{{ companyInfo.status === 'active' ? '服务中' : '已到期' }}</text>
+        </view>
+        <view class="status-item" wx:if="{{ daysRemaining !== null }}">
+          <text>剩余</text><text class="days-num {{ isExpiringSoon ? 'warn' : '' }}">{{ daysRemaining }}</text><text>天</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 健康度仪表盘 -->
+  <view class="card score-card" bindtap="goToRisk">
+    <view class="score-header flex-between">
+      <text class="score-title">📊 财税健康度综合评分</text>
+      <text class="score-arrow">查看详情 ›</text>
+    </view>
+
+    <view class="score-display">
+      <view class="score-circle {{ healthScore >= 90 ? 'excellent' : healthScore >= 75 ? 'good' : healthScore >= 60 ? 'fair' : healthScore > 0 ? 'poor' : 'none' }}">
+        <text class="score-num">{{ healthScore >= 0 ? healthScore : '-' }}</text>
+        <text class="score-unit">分</text>
+      </view>
+      <view class="level-info">
+        <text class="level-text">{{ healthLevel }}</text>
+        <text class="level-desc" wx:if="{{ healthScore >= 0 }}">基于六项核心财税风险指标综合评估</text>
+        <text class="level-desc" wx:else>暂无风险数据，请联系运营人员录入</text>
+      </view>
+    </view>
+
+    <!-- 六项指标快速概览 -->
+    <view class="quick-indicators" wx:if="{{ healthScore >= 0 }}">
+      <view class="qi-item">
+        <text class="qi-icon 📝">📝</text>
+        <text class="qi-text">申报</text>
+      </view>
+      <view class="qi-divider"></view>
+      <view class="qi-item">
+        <text class="qi-icon 💰">💰</text>
+        <text class="qi-text">现金</text>
+      </view>
+      <view class="qi-divider"></view>
+      <view class="qi-item">
+        <text class="qi-icon 🔗">🔗</text>
+        <text class="qi-text">往来款</text>
+      </view>
+      <view class="qi-divider"></view>
+      <view class="qi-item">
+        <text class="qi-icon 📈">📈</text>
+        <text class="qi-text">利润</text>
+      </view>
+      <view class="qi-divider"></view>
+      <view class="qi-item">
+        <text class="qi-icon 👥">👥</text>
+        <text class="qi-text">占款</text>
+      </view>
+      <view class="qi-divider"></view>
+      <view class="qi-item">
+        <text class="qi-icon 📋">📋</text>
+        <text class="qi-text">暂估</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能入口 -->
+  <view class="func-grid">
+    <view class="func-item" catchtap="goToRisk">
+      <view class="func-icon-wrap blue">
+        <text>⚠️</text>
+      </view>
+      <text class="func-text">风险指标</text>
+      <text class="func-desc">查看六项指标详情</text>
+    </view>
+    <view class="func-item" catchtap="goToAiEval">
+      <view class="func-icon-wrap green">
+        <text>🤖</text>
+      </view>
+      <text class="func-text">AI评估</text>
+      <text class="func-desc">智能解读风险报告</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财税智能体系统 - 企业详情</title>
+    <style>
+        :root { --primary:#4361ee; --primary-dark:#3a0ca3; --success:#2ecc71; --warning:#f39c12; --danger:#e74c3c; --info:#3498db;
+            --sidebar-w:240px; --header-h:60px; --bg:#f4f6fa; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif; }
+        body { background:var(--bg); display:flex; min-height:100vh; }
+        .sidebar { width:var(--sidebar-w); background:linear-gradient(180deg,#1a1a2e 0%,#16213e 100%); color:#fff; position:fixed; top:0; left:0; height:100vh; overflow-y:auto; z-index:100; transition:.3s; flex-shrink:0; }
+        .sidebar-logo { padding:20px 20px 16px; border-bottom:1px solid rgba(255,255,255,.08); display:flex; align-items:center; gap:10px; }
+        .sidebar-logo .icon { font-size:28px; }
+        .sidebar-logo span { font-size:17px; font-weight:700; letter-spacing:1px; }
+        .nav-item { padding:12px 24px; cursor:pointer; display:flex; align-items:center; gap:10px; color:rgba(255,255,255,.7); transition:.2s; font-size:14px; border-left:3px solid transparent; user-select:none; }
+        .nav-item:hover { color:#fff; background:rgba(255,255,255,.06); }
+        .nav-item.active { color:#fff; background:rgba(67,97,238,.2); border-left-color:var(--primary); }
+        .nav-item i { width:22px; text-align:center; font-size:16px; }
+        .nav-section { padding:16px 20px 6px; font-size:11px; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1.5px; margin-top:8px; }
+        .sidebar-bottom { padding:16px 20px; border-top:1px solid rgba(255,255,255,.08); position:absolute; bottom:0; width:100%; }
+        .main-wrap { margin-left:var(--sidebar-w); flex:1; min-width:0; display:flex; flex-direction:column; }
+        .header { height:var(--header-h); background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.06); display:flex; align-items:center; justify-content:space-between; padding:0 28px; position:sticky; top:0; z-index:50; }
+        .header-left h2 { font-size:18px; color:#333; }
+        .header-right { display:flex; align-items:center; gap:18px; }
+        .user-info { display:flex; align-items:center; gap:8px; font-size:13px; color:#555; cursor:pointer; }
+        .user-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px; }
+        .content { padding:28px; flex:1; }
+        .card { background:#fff; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,.04); overflow:hidden; margin-bottom:20px; }
+        .card-header { padding:18px 24px; border-bottom:1px solid #f0f0f0; font-size:15px; color:#333; font-weight:600; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+        .card-body { padding:20px 24px; }
+        .card-body.p-0 { padding:0; }
+        table { width:100%; border-collapse:collapse; }
+        th { background:#fafafa; padding:11px 14px; text-align:left; font-size:13px; color:#666; font-weight:600; border-bottom:1px solid #eee; white-space:nowrap; }
+        td { padding:11px 14px; font-size:13.5px; color:#444; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
+        tr:hover { background:#fcfdff; }
+        .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:500; }
+        .badge-green{background:#eafaf1;color:#27ae60} .badge-red{background:#fdedec;color:#e74c3c}
+        .badge-yellow{background:#fef9e7;color:#d68910} .badge-blue{background:#ebf5fb;color:#2980b9}
+        .empty-state { text-align:center; padding:48px 20px; color:#aaa; }
+        .toast-container { position:fixed; top:20px; right:20px; z-index:300; }
+        .toast { background:#333; color:#fff; padding:12px 20px; border-radius:10px; margin-bottom:8px; font-size:13px; box-shadow:0 4px 15px rgba(0,0,0,.15); animation:toastIn .3s ease; }
+        .toast.success{background:#27ae60}.toast.danger{background:#e74c3c}.toast.info{background:#3498db}
+        @keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+        .btn { display:inline-flex; align-items:center; gap:5px; padding:8px 18px; border:none; border-radius:8px; font-size:13px; cursor:pointer; transition:.2s; font-weight:500; white-space:nowrap; text-decoration:none; }
+        .btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:#3555d9}
+        .btn-secondary{background:#e9ecef;color:#495057}.btn-secondary:hover{background:#dee2e6}
+        .btn-outline-success,.btn-outline-primary{background:transparent;border:1.5px solid #ddd;color:#555;padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;text-decoration:none}
+        .btn-outline-success:hover{border-color:#27ae60;color:#27ae60}
+        .btn-outline-primary:hover{border-color:var(--primary);color:var(--primary)}
+        .form-control { padding:7px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; outline:none; transition:.2s; width:100%; }
+        .form-control:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(67,97,238,.1); }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); z-index:200; align-items:center; justify-content:center; }
+        .modal.show { display:flex; }
+        .modal-dialog { background:#fff; border-radius:14px; width:600px; max-width:95vw; max-height:90vh; overflow:auto; }
+        .modal-content { border-radius:14px; overflow:hidden; }
+        .modal-header { padding:18px 24px; border-bottom:1px solid #f0f0f0; display:flex; justify-content:space-between; align-items:center; }
+        .modal-body { padding:20px 24px; }
+        .modal-footer { padding:14px 24px; border-top:1px solid #f0f0f0; display:flex; justify-content:flex-end; gap:10px; }
+        .modal-lg { width:800px; }
+        .modal-title { font-size:16px; font-weight:600; }
+        .btn-close { background:none; border:none; font-size:20px; cursor:pointer; color:#888; }
+        .text-muted{color:#aaa}.text-danger{color:#e74c3c}.small{font-size:12px}
+        .row { display:flex; flex-wrap:wrap; gap:16px; }
+        .col-md-4 { flex:0 0 calc(33.33% - 11px); }
+        .col-12 { flex:0 0 100%; }
+        .text-center { text-align:center; }
+        .py-3 { padding-top:16px; padding-bottom:16px; }
+        .fs-2 { font-size:2rem; }
+        .fw-bold { font-weight:700; }
+        .text-success{color:#27ae60}.text-warning{color:#d68910}.text-danger{color:#e74c3c}
+        .progress { background:#f0f0f0;border-radius:4px;height:4px;overflow:hidden; }
+        .progress-bar-animated { background:var(--primary);height:100%;animation:loading 1.5s infinite linear; }
+        @keyframes loading{0%{width:0}50%{width:100%}100%{width:0}translateX(0)}
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-logo"><span class="icon">🧾</span><span>财税智能体</span></div>
+    <div class="nav-section">📊 核心功能</div>
+    <div class="nav-item" onclick="location.href='/admin/dashboard'"><i>📋</i> 数据总览</div>
+    <div class="nav-item active"><i>🏢</i> 企业信息管理</div>
+    <div class="nav-item" onclick="location.href='/admin/risk-indicators'"><i>⚠️</i> 风险指标管理</div>
+    <div class="nav-section">⚙️ 系统设置</div>
+    <div class="nav-item" onclick="location.href='/admin/users'"><i>👥</i> 系统用户管理</div>
+    <div class="nav-item" onclick="location.href='/admin/wx-users'"><i>📱</i> 小程序用户管理</div>
+    <div class="sidebar-bottom">
+        <div class="user-info" style="justify-content:space-between;width:100%;">
+            <span id="currentUserName">管理员</span>
+            <button class="btn btn-outline-secondary btn-sm" onclick="doLogout()">退出登录</button>
+        </div>
+    </div>
+</div>
+
+<!-- Main -->
+<div class="main-wrap">
+    <div class="header">
+        <div class="header-left"><h2>企业详情</h2></div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <span id="headerUserName">管理员</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- Company Info Card -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0 fw-semibold" id="companyTitle">加载中...</h6>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-outline-success" onclick="openUploadModal()"><i class="bi bi-upload"></i>上传数据</button>
+                    <button class="btn btn-outline-primary" onclick="triggerAiEval()"><i class="bi bi-robot"></i>AI综合评估</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row" id="companyInfo">
+                    <div class="col-12 text-center py-3 text-muted">加载企业信息中...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Summary Cards -->
+        <div class="row" style="margin-bottom:20px;">
+            <div class="col-md-3">
+                <div class="card text-center" style="padding:16px 0;">
+                    <div class="fs-2 fw-bold text-success" id="normalCount">--</div>
+                    <div class="text-muted small">正常</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center" style="padding:16px 0;">
+                    <div class="fs-2 fw-bold" style="color:#ff9f43" id="remindCount">--</div>
+                    <div class="text-muted small">提醒</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center" style="padding:16px 0;">
+                    <div class="fs-2 fw-bold text-warning" id="warningCount">--</div>
+                    <div class="text-muted small">预警</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center" style="padding:16px 0;">
+                    <div class="fs-2 fw-bold text-danger" id="majorCount">--</div>
+                    <div class="text-muted small">重大风险</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Indicators Table -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0 fw-semibold">风险指标明细</h6>
+                <select id="levelFilter" onchange="loadIndicators()" style="padding:6px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;">
+                    <option value="">全部</option>
+                    <option value="normal">正常</option>
+                    <option value="remind">提醒</option>
+                    <option value="warning">预警</option>
+                    <option value="major">重大风险</option>
+                </select>
+            </div>
+            <div class="card-body p-0">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="padding-left:20px;">指标名称</th>
+                            <th>指标值</th>
+                            <th>单位</th>
+                            <th>风险等级</th>
+                            <th>触发原因</th>
+                            <th>统计期间</th>
+                        </tr>
+                    </thead>
+                    <tbody id="indicatorTableBody">
+                        <tr><td colspan="6" class="empty-state">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- AI Eval History -->
+        <div class="card">
+            <div class="card-header"><h6 class="mb-0 fw-semibold">AI评估记录</h6></div>
+            <div class="card-body p-0">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="padding-left:20px;">评估时间</th>
+                            <th>风险等级</th>
+                            <th>综合得分</th>
+                            <th>评估摘要</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="evalTableBody">
+                        <tr><td colspan="5" class="empty-state">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal" id="uploadModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">上传财税数据</h5>
+                <button type="button" class="btn-close" onclick="closeModal('uploadModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom:14px;">
+                    <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">选择TXT数据文件</label>
+                    <input class="form-control" type="file" id="uploadFile" accept=".txt">
+                </div>
+                <div id="uploadProgress" style="display:none;">
+                    <div class="progress"><div class="progress-bar-animated"></div></div>
+                    <p style="text-align:center;color:#aaa;font-size:12px;margin-top:8px;">处理中...</p>
+                </div>
+                <div id="uploadResult" style="display:none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('uploadModal')">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="doUpload()">上传</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Eval Modal -->
+<div class="modal" id="aiEvalModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">AI综合风险评估报告</h5>
+                <button type="button" class="btn-close" onclick="closeModal('aiEvalModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="aiEvalContent" style="min-height:200px;white-space:pre-wrap;line-height:1.8;font-size:14px;color:#333;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API = '/api/v1';
+const token = localStorage.getItem('access_token') || '';
+const companyId = {{ company_id }};
+
+const LEVEL_BADGE = {
+    normal:  '<span class="badge badge-green">正常</span>',
+    remind:  '<span class="badge" style="background:#ff9f43;color:#fff">提醒</span>',
+    warning: '<span class="badge badge-yellow">预警</span>',
+    major:   '<span class="badge badge-red">重大风险</span>',
+};
+
+function authHeaders() { 
+    const headers = {'Content-Type': 'application/json'};
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    return headers;
+}
+
+async function api(url, opts={}) {
+    const res = await fetch(API + url, {...opts, headers:{...authHeaders(),...(opts.headers||{})}, credentials:'include'});
+    if (res.status === 401) { localStorage.clear(); location.href='/admin/login'; return null; }
+    return res;
+}
+
+function showToast(msg, type='info') {
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+async function doLogout() {
+    await api('/auth/logout', {method:'POST'});
+    localStorage.clear();
+    location.href='/admin/login';
+}
+
+(function() {
+    if (!token) { location.href='/admin/login'; return; }
+    const ui = JSON.parse(localStorage.getItem('user_info') || '{}');
+    const name = ui.real_name || ui.username || '管理员';
+    document.getElementById('currentUserName').textContent = name;
+    document.getElementById('headerUserName').textContent = name;
+    if (ui.real_name) document.getElementById('userAvatar').textContent = ui.real_name.charAt(0).toUpperCase();
+    loadCompany();
+    loadIndicators();
+    loadEvalHistory();
+})();
+
+async function loadCompany() {
+    const res = await api(`/companies/${companyId}`);
+    if (!res) return;
+    const data = await res.json();
+    if (data.code !== 200) return;
+    const c = data.data;
+    document.getElementById('companyTitle').textContent = c.name;
+    document.getElementById('companyInfo').innerHTML = `
+        <div class="col-md-4"><span class="text-muted">统一社会信用代码：</span><code>${c.credit_code||'--'}</code></div>
+        <div class="col-md-4"><span class="text-muted">法人代表：</span>${c.legal_person||'--'}</div>
+        <div class="col-md-4"><span class="text-muted">行业：</span>${c.industry||'--'}</div>
+        <div class="col-md-4"><span class="text-muted">注册资本：</span>${c.registered_capital ? c.registered_capital+'万元' : '--'}</div>
+        <div class="col-md-4"><span class="text-muted">成立日期：</span>${c.establish_date||'--'}</div>
+        <div class="col-md-4"><span class="text-muted">注册地址：</span>${c.address||'--'}</div>
+        ${c.business_scope ? `<div class="col-12"><span class="text-muted">经营范围：</span>${c.business_scope}</div>` : ''}
+    `;
+}
+
+async function loadIndicators() {
+    const level = document.getElementById('levelFilter').value;
+    const params = new URLSearchParams({ company_id: companyId, page: 1, size: 100 });
+    if (level) params.set('level', level);
+    const res = await api(`/risk-indicators?${params}`);
+    if (!res) return;
+    const data = await res.json();
+    if (data.code !== 200) return;
+    const items = data.data.items || [];
+    const counts = { normal: 0, remind: 0, warning: 0, major: 0 };
+    items.forEach(i => counts[i.level] = (counts[i.level]||0) + 1);
+    document.getElementById('normalCount').textContent = counts.normal;
+    document.getElementById('remindCount').textContent = counts.remind;
+    document.getElementById('warningCount').textContent = counts.warning;
+    document.getElementById('majorCount').textContent = counts.major;
+    const tbody = document.getElementById('indicatorTableBody');
+    if (!items.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">暂无风险指标</td></tr>';
+        return;
+    }
+    tbody.innerHTML = items.map(ind => `
+        <tr>
+            <td style="padding-left:20px;font-weight:500">${ind.name}</td>
+            <td>${ind.value != null ? ind.value : '--'}</td>
+            <td class="text-muted">${ind.unit||'--'}</td>
+            <td>${LEVEL_BADGE[ind.level]}</td>
+            <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${ind.reason||''}">${ind.reason||'--'}</td>
+            <td class="text-muted small">${ind.period||'--'}</td>
+        </tr>`).join('');
+}
+
+async function loadEvalHistory() {
+    const res = await api(`/companies/${companyId}/evaluations?page=1&size=10`);
+    if (!res) return;
+    const data = await res.json();
+    const tbody = document.getElementById('evalTableBody');
+    if (data.code !== 200 || !data.data.items?.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">暂无评估记录</td></tr>';
+        return;
+    }
+    tbody.innerHTML = data.data.items.map(e => `
+        <tr>
+            <td style="padding-left:20px;" class="text-muted small">${(e.created_at||'').slice(0,16)}</td>
+            <td>${LEVEL_BADGE[e.risk_level||'normal']}</td>
+            <td>${e.score != null ? e.score : '--'}</td>
+            <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${e.summary||''}">${e.summary||'--'}</td>
+            <td><button class="btn-outline-primary" onclick='showEval(${JSON.stringify(e.content||e.summary||"")})'>查看</button></td>
+        </tr>`).join('');
+}
+
+function showEval(content) {
+    document.getElementById('aiEvalContent').textContent = content;
+    document.getElementById('aiEvalModal').classList.add('show');
+}
+
+async function triggerAiEval() {
+    document.getElementById('aiEvalContent').textContent = '正在生成AI评估报告，请稍候...';
+    document.getElementById('aiEvalModal').classList.add('show');
+    try {
+        const res = await api(`/companies/${companyId}/ai-evaluate`, { method: 'POST' });
+        if (!res) return;
+        const data = await res.json();
+        if (data.code === 200) {
+            document.getElementById('aiEvalContent').textContent = data.data.content || data.data.summary;
+            loadEvalHistory();
+        } else {
+            document.getElementById('aiEvalContent').textContent = '评估失败：' + (data.message || '未知错误');
+        }
+    } catch(e) {
+        document.getElementById('aiEvalContent').textContent = '请求失败：' + e.message;
+    }
+}
+
+function openUploadModal() {
+    document.getElementById('uploadFile').value = '';
+    document.getElementById('uploadProgress').style.display = 'none';
+    document.getElementById('uploadResult').style.display = 'none';
+    document.getElementById('uploadModal').classList.add('show');
+}
+
+async function doUpload() {
+    const file = document.getElementById('uploadFile').files[0];
+    if (!file) { alert('请选择文件'); return; }
+    document.getElementById('uploadProgress').style.display = 'block';
+    document.getElementById('uploadResult').style.display = 'none';
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+        const res = await fetch(`${API}/companies/${companyId}/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData,
+        });
+        const data = await res.json();
+        document.getElementById('uploadProgress').style.display = 'none';
+        const resultDiv = document.getElementById('uploadResult');
+        resultDiv.style.display = 'block';
+        if (data.code === 200) {
+            const r = data.data;
+            resultDiv.innerHTML = `<div style="background:#eafaf1;color:#27ae60;padding:12px;border-radius:8px;font-size:13px;"><b>处理完成！</b><br>解析 ${r.total_indicators} 个指标，入库 ${r.saved} 个</div>`;
+            loadIndicators();
+        } else {
+            resultDiv.innerHTML = `<div style="background:#fdedec;color:#e74c3c;padding:12px;border-radius:8px;font-size:13px;">${data.message||'上传失败'}</div>`;
+        }
+    } catch(e) {
+        document.getElementById('uploadProgress').style.display = 'none';
+        alert('上传失败：' + e.message);
+    }
+}
+</script>
+</body>
+</html>

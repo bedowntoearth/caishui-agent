@@ -1,0 +1,18 @@
+2026-04-23 13:58:43.645 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/admin/ - expected token 'end of print statement', got ':'
+2026-04-23 13:59:46.709 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/admin/dashboard - expected token 'end of print statement', got ':'
+2026-04-23 14:00:02.200 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/admin/dashboard - expected token 'end of print statement', got ':'
+2026-04-23 14:04:17.745 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/admin/ - expected token 'end of print statement', got ':'
+2026-04-23 14:04:45.705 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/admin/ - expected token 'end of print statement', got ':'
+2026-04-23 14:05:13.311 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/admin/ - expected token 'end of print statement', got ':'
+2026-04-23 14:09:24.289 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/admin/companies - expected token 'end of print statement', got ':'
+2026-04-23 14:09:27.008 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/admin/users - expected token 'end of print statement', got ':'
+2026-04-23 14:09:29.726 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/admin/risk-indicators - expected token 'end of print statement', got ':'
+2026-04-23 14:20:44.466 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/admin/ - expected token 'end of print statement', got ':'
+2026-04-23 14:21:08.436 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/admin/ - expected token 'end of print statement', got ':'
+2026-04-23 15:59:28.334 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/api/v1/companies/export?keyword=&status= - name 'export_companies' is not defined
+2026-04-23 15:59:39.382 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/api/v1/companies/export?keyword=&status= - name 'export_companies' is not defined
+2026-04-23 16:09:42.062 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/api/v1/companies/export - name 'export_companies' is not defined
+2026-04-23 16:13:55.647 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/api/v1/companies/export - name 'export_companies' is not defined
+2026-04-23 16:14:55.231 | ERROR    | app:global_exception_handler:69 - 未处理异常: http://localhost:8000/api/v1/companies/export - NameError: name 'export_companies' is not defined
+2026-04-23 16:15:41.772 | ERROR    | app:global_exception_handler:69 - 未处理异常: http://localhost:8000/api/v1/companies/export - NameError: name 'StreamingResponse' is not defined
+2026-04-23 16:16:22.220 | ERROR    | app:global_exception_handler:69 - 未处理异常: http://localhost:8000/api/v1/companies/export - UnicodeEncodeError: 'latin-1' codec can't encode characters in position 29-32: ordinal not in range(256)

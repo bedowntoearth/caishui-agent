@@ -1,0 +1,6 @@
+2026-04-24 09:03:48.223 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://192.168.1.80:8000/api/v1/miniapp/ai-evaluate - name 'httpx' is not defined
+2026-04-24 09:49:25.390 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/api/v1/companies/template - name 'Workbook' is not defined
+2026-04-24 09:50:58.492 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/api/v1/companies/template - name 'Workbook' is not defined
+2026-04-24 09:54:11.162 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/api/v1/companies/template - name 'Workbook' is not defined
+2026-04-24 09:54:43.282 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/api/v1/companies/template - name 'Workbook' is not defined
+2026-04-24 09:54:51.893 | ERROR    | app:global_exception_handler:64 - 未处理异常: http://localhost:8000/api/v1/companies/template - name 'Workbook' is not defined

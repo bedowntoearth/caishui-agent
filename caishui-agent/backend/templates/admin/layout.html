@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财税智能体系统 - 大模型配置</title>
+    <style>
+        :root { --primary:#4361ee; --primary-dark:#3a0ca3; --success:#2ecc71; --warning:#f39c12; --danger:#e74c3c; --info:#3498db;
+            --sidebar-w:240px; --header-h:60px; --bg:#f4f6fa; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif; }
+        body { background:var(--bg); display:flex; min-height:100vh; }
+        .sidebar { width:var(--sidebar-w); background:linear-gradient(180deg,#1a1a2e 0%,#16213e 100%); color:#fff; position:fixed; top:0; left:0; height:100vh; overflow-y:auto; z-index:100; flex-shrink:0; }
+        .sidebar-logo { padding:20px 20px 16px; border-bottom:1px solid rgba(255,255,255,.08); display:flex; align-items:center; gap:10px; }
+        .sidebar-logo .icon { font-size:28px; }
+        .sidebar-logo span { font-size:17px; font-weight:700; letter-spacing:1px; }
+        .nav-item { padding:12px 24px; cursor:pointer; display:flex; align-items:center; gap:10px; color:rgba(255,255,255,.7); transition:.2s; font-size:14px; border-left:3px solid transparent; user-select:none; }
+        .nav-item:hover { color:#fff; background:rgba(255,255,255,.06); }
+        .nav-item.active { color:#fff; background:rgba(67,97,238,.2); border-left-color:var(--primary); }
+        .nav-item i { width:22px; text-align:center; font-size:16px; }
+        .nav-section { padding:16px 20px 6px; font-size:11px; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1.5px; margin-top:8px; }
+        .sidebar-bottom { padding:16px 20px; border-top:1px solid rgba(255,255,255,.08); position:absolute; bottom:0; width:100%; }
+        .main-wrap { margin-left:var(--sidebar-w); flex:1; min-width:0; display:flex; flex-direction:column; }
+        .header { height:var(--header-h); background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.06); display:flex; align-items:center; justify-content:space-between; padding:0 28px; position:sticky; top:0; z-index:50; }
+        .header-left h2 { font-size:18px; color:#333; }
+        .header-right { display:flex; align-items:center; gap:18px; }
+        .user-info { display:flex; align-items:center; gap:8px; font-size:13px; color:#555; }
+        .user-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px; }
+        .content { padding:28px; flex:1; }
+        .panel { background:#fff; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,.04); overflow:hidden; margin-bottom:20px; }
+        .panel-header { padding:18px 24px; border-bottom:1px solid #f0f0f0; display:flex; align-items:center; justify-content:space-between; }
+        .panel-header h3 { font-size:15px; color:#333; }
+        .panel-body { padding:28px 32px; }
+        .form-group { margin-bottom:22px; }
+        .form-group label { display:block; font-size:13px; color:#555; margin-bottom:6px; font-weight:500; }
+        .form-group input { width:100%; padding:10px 14px; border:1.5px solid #e0e0e0; border-radius:8px; font-size:14px; outline:none; transition:.2s; }
+        .form-group input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(67,97,238,.1); }
+        .form-group input[readonly] { background:#f8f9fa; cursor:not-allowed; color:#999; }
+        .form-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:22px; }
+        .form-row .form-group { margin-bottom:0; }
+        .btn { display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border:none;border-radius:8px;font-size:14px;cursor:pointer;transition:.2s;font-weight:500; }
+        .btn-primary { background:var(--primary);color:#fff; }
+        .btn-primary:hover { background:#3555d9; }
+        .btn-sm { padding:5px 14px; font-size:12px; }
+        .btn-outline { background:transparent;border:1.5px solid #ddd;color:#555; }
+        .btn-outline:hover { border-color:var(--primary);color:var(--primary); }
+        .alert { padding:14px 18px; border-radius:10px; font-size:13.5px; margin-bottom:20px; line-height:1.6; }
+        .alert-warning { background:#fef9e7; color:#b7770d; border:1px solid #f5c842; }
+        .alert-info { background:#eaf4fb; color:#1a6fa0; border:1px solid #aacfe8; }
+        .hint { font-size:11.5px; color:#aaa; margin-top:5px; line-height:1.6; }
+        .toast-container { position:fixed;top:20px;right:20px;z-index:300; }
+        .toast { background:#333;color:#fff;padding:12px 20px;border-radius:10px;margin-bottom:8px;font-size:13px;box-shadow:0 4px 15px rgba(0,0,0,.15); animation:toastIn .3s ease; }
+        .toast.success{background:var(--success)}.toast.error{background:var(--danger)}
+        @keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+        .divider { height:1px; background:#f0f0f0; margin:24px 0; }
+        .section-title { font-size:13px; font-weight:600; color:#666; margin-bottom:16px; padding-bottom:8px; border-bottom:2px solid #f0f0f0; }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-logo"><span class="icon">🧾</span><span>财税智能体</span></div>
+    <div class="nav-section">📊 核心功能</div>
+    <div class="nav-item" onclick="location.href='/admin/dashboard'"><i>📋</i> 数据总览</div>
+    <div class="nav-item" onclick="location.href='/admin/companies'"><i>🏢</i> 企业信息管理</div>
+    <div class="nav-item" onclick="location.href='/admin/risk-indicators'"><i>⚠️</i> 风险指标管理</div>
+    <div class="nav-section">⚙️ 系统设置</div>
+    <div class="nav-item" onclick="location.href='/admin/users'"><i>👥</i> 系统用户管理</div>
+    <div class="nav-item" onclick="location.href='/admin/wx-users'"><i>📱</i> 小程序用户管理</div>
+    <div class="nav-item active"><i>🤖</i> 大模型配置</div>
+    <div class="sidebar-bottom">
+        <div class="user-info" style="justify-content:space-between;width:100%;">
+            <span id="currentUserName">管理员</span>
+            <button class="btn btn-sm btn-outline" style="padding:3px 10px;" onclick="doLogout()">退出登录</button>
+        </div>
+    </div>
+</div>
+
+<!-- Main -->
+<div class="main-wrap">
+    <div class="header">
+        <div class="header-left"><h2>🤖 大模型配置</h2></div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <span id="headerUserName">管理员</span>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+
+        <div class="panel">
+            <div class="panel-header">
+                <h3>AI 大模型接口配置</h3>
+                <div id="saveActions" style="display:none;">
+                    <button class="btn btn-primary" onclick="saveLLMConfig()">💾 保存配置</button>
+                </div>
+            </div>
+            <div class="panel-body">
+
+                <!-- 权限提示 -->
+                <div id="permAlert" class="alert alert-warning" style="display:none;"></div>
+
+                <!-- 加载提示 -->
+                <div id="loadingHint" style="text-align:center;padding:40px 0;color:#aaa;font-size:14px;">加载中...</div>
+
+                <!-- 配置表单 -->
+                <div id="configForm" style="display:none;">
+                    <div class="section-title">🔑 接口鉴权</div>
+                    <div class="form-group">
+                        <label>API Key <span style="color:var(--danger)">*</span></label>
+                        <input type="password" id="llm_api_key" placeholder="sk-..." autocomplete="off">
+                        <div class="hint">OpenAI 或兼容接口的 API Key，仅超级管理员可查看和修改</div>
+                    </div>
+
+                    <div class="divider"></div>
+                    <div class="section-title">🌐 接口地址</div>
+                    <div class="form-group">
+                        <label>API Base URL <span style="color:var(--danger)">*</span></label>
+                        <input type="text" id="llm_api_base" placeholder="https://api.openai.com/v1">
+                        <div class="hint">OpenAI 兼容接口地址，支持 DeepSeek、智谱 GLM、阿里 Qwen 等国内大模型</div>
+                    </div>
+
+                    <div class="divider"></div>
+                    <div class="section-title">⚙️ 模型参数</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>模型名称 <span style="color:var(--danger)">*</span></label>
+                            <input type="text" id="llm_model" placeholder="gpt-4o-mini">
+                        </div>
+                        <div class="form-group">
+                            <label>最大 Token 数</label>
+                            <input type="number" id="llm_max_tokens" value="2000" min="100" max="128000">
+                        </div>
+                        <div class="form-group">
+                            <label>Temperature</label>
+                            <input type="number" id="llm_temperature" value="0.7" min="0" max="2" step="0.1">
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info" style="margin-top:8px;">
+                        💡 <strong>提示：</strong>保存配置后无需重启服务即可生效。仅 <strong>超级管理员</strong> 有权限修改。
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API = '/api/v1';
+const token = localStorage.getItem('access_token') || '';
+
+function authHeaders(json=true){
+    const h = {'Authorization': 'Bearer ' + token};
+    if(json) h['Content-Type'] = 'application/json';
+    return h;
+}
+
+async function apiFetch(url, opts={}){
+    const res = await fetch(API + url, {
+        ...opts,
+        headers: {...authHeaders(), ...(opts.headers||{})},
+        credentials: 'include'
+    });
+    if(res.status === 401){ localStorage.clear(); location.href='/admin/login'; return null; }
+    return res;
+}
+
+function showToast(msg, type='info'){
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+async function doLogout(){
+    await fetch('/admin/logout', {method:'POST', credentials:'include'});
+    localStorage.clear();
+    location.href = '/admin/login';
+}
+
+// 初始化
+(function(){
+    if(!token){ location.href='/admin/login'; return; }
+    const ui = JSON.parse(localStorage.getItem('user_info') || '{}');
+    const name = ui.real_name || ui.username || '管理员';
+    document.getElementById('currentUserName').textContent = name;
+    document.getElementById('headerUserName').textContent = name;
+    if(ui.real_name) document.getElementById('userAvatar').textContent = ui.real_name.charAt(0).toUpperCase();
+
+    if(ui.role === 'super_admin'){
+        // 超级管理员可以修改
+        document.getElementById('saveActions').style.display = '';
+    } else {
+        // 非超级管理员只读
+        const alert = document.getElementById('permAlert');
+        alert.style.display = '';
+        alert.innerHTML = `⚠️ 当前账号「${name}」无修改权限，仅超级管理员可修改大模型配置。`;
+    }
+
+    loadLLMConfig(ui.role === 'super_admin');
+})();
+
+async function loadLLMConfig(editable=false){
+    try {
+        const res = await apiFetch('/llm-config');
+        if(!res) return;
+        const json = await res.json();
+        if(!res.ok){ showToast(json.detail || '加载失败', 'error'); return; }
+        const d = json.data || json;
+
+        document.getElementById('llm_api_key').value = d.ai_api_key || '';
+        document.getElementById('llm_api_base').value = d.ai_api_base || '';
+        document.getElementById('llm_model').value = d.ai_model || '';
+        document.getElementById('llm_max_tokens').value = d.ai_max_tokens || 2000;
+        document.getElementById('llm_temperature').value = d.ai_temperature || 0.7;
+
+        // 只读模式
+        if(!editable){
+            ['llm_api_key','llm_api_base','llm_model','llm_max_tokens','llm_temperature'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.setAttribute('readonly', 'readonly');
+            });
+        }
+
+        document.getElementById('loadingHint').style.display = 'none';
+        document.getElementById('configForm').style.display = '';
+    } catch(e){
+        document.getElementById('loadingHint').textContent = '加载失败，请刷新重试';
+        showToast('加载配置失败', 'error');
+    }
+}
+
+async function saveLLMConfig(){
+    const payload = {
+        ai_api_key: document.getElementById('llm_api_key').value.trim(),
+        ai_api_base: document.getElementById('llm_api_base').value.trim(),
+        ai_model: document.getElementById('llm_model').value.trim(),
+        ai_max_tokens: parseInt(document.getElementById('llm_max_tokens').value) || 2000,
+        ai_temperature: parseFloat(document.getElementById('llm_temperature').value) || 0.7,
+    };
+    if(!payload.ai_api_key){ showToast('API Key 不能为空', 'error'); return; }
+    if(!payload.ai_api_base){ showToast('API Base URL 不能为空', 'error'); return; }
+    if(!payload.ai_model){ showToast('模型名称不能为空', 'error'); return; }
+    try {
+        const res = await apiFetch('/llm-config', {method:'PUT', body:JSON.stringify(payload)});
+        if(!res) return;
+        if(!res.ok){
+            const e = await res.json();
+            showToast(e.detail || '保存失败（需要超级管理员权限）', 'error');
+            return;
+        }
+        showToast('配置已保存，即时生效', 'success');
+    } catch(e){ showToast('网络错误', 'error'); }
+}
+</script>
+
+</body>
+</html>

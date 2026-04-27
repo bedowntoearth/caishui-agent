@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财税智能体系统 - 企业管理</title>
+    <style>
+        :root { --primary:#4361ee; --primary-dark:#3a0ca3; --success:#2ecc71; --warning:#f39c12; --danger:#e74c3c; --info:#3498db;
+            --sidebar-w:240px; --header-h:60px; --bg:#f4f6fa; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif; }
+        body { background:var(--bg); display:flex; min-height:100vh; }
+        .sidebar { width:var(--sidebar-w); background:linear-gradient(180deg,#1a1a2e 0%,#16213e 100%); color:#fff; position:fixed; top:0; left:0; height:100vh; overflow-y:auto; z-index:100; transition:.3s; flex-shrink:0; }
+        .sidebar-logo { padding:20px 20px 16px; border-bottom:1px solid rgba(255,255,255,.08); display:flex; align-items:center; gap:10px; }
+        .sidebar-logo .icon { font-size:28px; }
+        .sidebar-logo span { font-size:17px; font-weight:700; letter-spacing:1px; }
+        .nav-item { padding:12px 24px; cursor:pointer; display:flex; align-items:center; gap:10px; color:rgba(255,255,255,.7); transition:.2s; font-size:14px; border-left:3px solid transparent; user-select:none; }
+        .nav-item:hover { color:#fff; background:rgba(255,255,255,.06); }
+        .nav-item.active { color:#fff; background:rgba(67,97,238,.2); border-left-color:var(--primary); }
+        .nav-item i { width:22px; text-align:center; font-size:16px; }
+        .nav-section { padding:16px 20px 6px; font-size:11px; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1.5px; margin-top:8px; }
+        .sidebar-bottom { padding:16px 20px; border-top:1px solid rgba(255,255,255,.08); position:absolute; bottom:0; width:100%; }
+        .main-wrap { margin-left:var(--sidebar-w); flex:1; min-width:0; display:flex; flex-direction:column; }
+        .header { height:var(--header-h); background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.06); display:flex; align-items:center; justify-content:space-between; padding:0 28px; position:sticky; top:0; z-index:50; }
+        .header-left h2 { font-size:18px; color:#333; }
+        .header-right { display:flex; align-items:center; gap:18px; }
+        .user-info { display:flex; align-items:center; gap:8px; font-size:13px; color:#555; cursor:pointer; }
+        .user-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px; }
+        .content { padding:28px; flex:1; }
+        .card { background:#fff; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,.04); overflow:hidden; margin-bottom:20px; }
+        .card-header { padding:18px 24px; border-bottom:1px solid #f0f0f0; font-size:15px; color:#333; font-weight:600; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+        .card-body { padding:20px 24px; }
+        .card-body.p-0 { padding:0; }
+        .card-footer { padding:14px 24px; border-top:1px solid #f0f0f0; background:#fafafa; display:flex; justify-content:space-between; align-items:center; }
+        table { width:100%; border-collapse:collapse; }
+        th { background:#fafafa; padding:11px 14px; text-align:left; font-size:13px; color:#666; font-weight:600; border-bottom:1px solid #eee; white-space:nowrap; }
+        td { padding:11px 14px; font-size:13.5px; color:#444; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
+        tr:hover { background:#fcfdff; }
+        .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:500; }
+        .badge-green{background:#eafaf1;color:#27ae60} .badge-red{background:#fdedec;color:#e74c3c}
+        .badge-yellow{background:#fef9e7;color:#d68910} .badge-blue{background:#ebf5fb;color:#2980b9}
+        .empty-state { text-align:center; padding:48px 20px; color:#aaa; }
+        .toast-container { position:fixed; top:20px; right:20px; z-index:300; }
+        .toast { background:#333; color:#fff; padding:12px 20px; border-radius:10px; margin-bottom:8px; font-size:13px; box-shadow:0 4px 15px rgba(0,0,0,.15); animation:toastIn .3s ease; }
+        .toast.success{background:#27ae60}.toast.danger{background:#e74c3c}.toast.warning{background:#f39c12}.toast.info{background:#3498db}
+        @keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+        .btn { display:inline-flex; align-items:center; gap:5px; padding:8px 18px; border:none; border-radius:8px; font-size:13px; cursor:pointer; transition:.2s; font-weight:500; white-space:nowrap; text-decoration:none; }
+        .btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:#3555d9}
+        .btn-secondary{background:#e9ecef;color:#495057}.btn-secondary:hover{background:#dee2e6}
+        .btn-outline-secondary,.btn-outline-success,.btn-outline-danger,.btn-outline-primary{background:transparent;border:1.5px solid #ddd;color:#555;padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;text-decoration:none}
+        .btn-outline-secondary:hover{border-color:#6c757d;color:#6c757d}
+        .btn-outline-success:hover{border-color:#27ae60;color:#27ae60}
+        .btn-outline-danger:hover{border-color:#e74c3c;color:#e74c3c}
+        .btn-outline-primary:hover{border-color:var(--primary);color:var(--primary)}
+        .form-control,.form-select { padding:7px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; outline:none; transition:.2s; width:100%; }
+        .form-control:focus,.form-select:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(67,97,238,.1); }
+        .pagination { display:flex; list-style:none; gap:4px; }
+        .page-item { }
+        .page-link { padding:5px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:12px; cursor:pointer; color:#555; text-decoration:none; }
+        .page-item.active .page-link { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); z-index:200; align-items:center; justify-content:center; }
+        .modal.show { display:flex; }
+        .modal-dialog { background:#fff; border-radius:14px; width:700px; max-width:95vw; max-height:90vh; overflow:auto; }
+        .modal-content { border-radius:14px; overflow:hidden; }
+        .modal-header { padding:18px 24px; border-bottom:1px solid #f0f0f0; display:flex; justify-content:space-between; align-items:center; }
+        .modal-body { padding:20px 24px; }
+        .modal-footer { padding:14px 24px; border-top:1px solid #f0f0f0; display:flex; justify-content:flex-end; gap:10px; }
+        .modal-title { font-size:16px; font-weight:600; }
+        .btn-close { background:none; border:none; font-size:20px; cursor:pointer; color:#888; }
+        .text-muted{color:#aaa}.text-danger{color:#e74c3c}.small{font-size:12px}
+        .row { display:flex; flex-wrap:wrap; gap:16px; }
+        .col-md-6 { flex:0 0 calc(50% - 8px); }
+        .col-12 { flex:0 0 100%; }
+        textarea.form-control { resize:vertical; min-height:80px; }
+        /* Import/Export Modal Styles */
+        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); z-index:200; align-items:center; justify-content:center; }
+        .modal-overlay.show { display:flex; }
+        .modal-box { background:#fff; border-radius:14px; width:480px; max-width:95vw; padding:24px; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .modal-header h3 { font-size:18px; margin:0; }
+        .close-btn { background:none; border:none; font-size:22px; cursor:pointer; color:#888; }
+        .radio-group { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+        .radio-item { padding:12px 16px; border:2px solid #e2e8f0; border-radius:10px; cursor:pointer; transition:.2s; }
+        .radio-item:hover { border-color:var(--primary); background:#f5f7ff; }
+        .radio-item.selected { border-color:var(--primary); background:#eef1ff; color:var(--primary); }
+        .radio-item input[type=radio] { display:none; }
+        .radio-item.selected::before { content:'✓ '; font-weight:700; }
+        .upload-zone { border:2px dashed #ccc; border-radius:12px; padding:32px; text-align:center; cursor:pointer; transition:.2s; margin-top:12px; }
+        .upload-zone:hover,.upload-zone.dragover { border-color:var(--primary); background:#f5f7ff; }
+        .upload-zone input[type=file] { display:none; }
+        .upload-zone .icon { font-size:36px; margin-bottom:8px; }
+        .upload-zone .tip { font-size:13px; color:#888; margin-top:6px; }
+        .import-result { margin-top:14px; padding:12px 16px; border-radius:10px; font-size:13.5px; line-height:1.7; }
+        .import-result.success { background:#eafaf1; color:#27ae60; border:1px solid #a9d5ba; }
+        .import-result.error { background:#fdedec; color:#c0392b; border:1px solid #f5b7b1; }
+        .import-result .err-item { font-size:12.5px; color:#888; margin-top:2px; }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-logo"><span class="icon">🧾</span><span>财税智能体</span></div>
+    <div class="nav-section">📊 核心功能</div>
+    <div class="nav-item" onclick="location.href='/admin/dashboard'"><i>📋</i> 数据总览</div>
+    <div class="nav-item active"><i>🏢</i> 企业信息管理</div>
+    <div class="nav-item" onclick="location.href='/admin/risk-indicators'"><i>⚠️</i> 风险指标管理</div>
+    <div class="nav-section">⚙️ 系统设置</div>
+    <div class="nav-item" onclick="location.href='/admin/users'"><i>👥</i> 系统用户管理</div>
+    <div class="nav-item" onclick="location.href='/admin/wx-users'"><i>📱</i> 小程序用户管理</div>
+    <div class="nav-item" onclick="location.href='/admin/llm-config'"><i>🤖</i> 大模型配置</div>
+    <div class="sidebar-bottom">
+        <div class="user-info" style="justify-content:space-between;width:100%;">
+            <span id="currentUserName">管理员</span>
+            <button class="btn btn-outline-secondary btn-sm" onclick="doLogout()">退出登录</button>
+        </div>
+    </div>
+</div>
+
+<!-- Main -->
+<div class="main-wrap">
+    <div class="header">
+        <div class="header-left"><h2>企业管理</h2></div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <span id="headerUserName">管理员</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0 fw-semibold">企业列表</h6>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                    <div id="batchActions" style="display:none;align-items:center;gap:8px;">
+                        <span style="font-size:12px;color:#888;" id="selectedCount">已选 0 项</span>
+                        <button class="btn btn-outline-danger" style="padding:4px 10px;font-size:12px;" onclick="batchDeleteCompanies()">批量删除</button>
+                        <button class="btn btn-outline-primary" style="padding:4px 10px;font-size:12px;" onclick="batchExport()">批量导出</button>
+                        <button class="btn btn-outline-secondary" style="padding:4px 10px;font-size:12px;" onclick="clearSelection()">取消选择</button>
+                    </div>
+                    <input id="searchInput" class="form-control" style="width:200px" placeholder="搜索企业名/信用代码">
+                    <select id="riskFilter" class="form-select" style="width:130px">
+                        <option value="">全部风险</option>
+                        <option value="normal">正常</option>
+                        <option value="remind">提醒</option>
+                        <option value="warning">预警</option>
+                        <option value="major">重大风险</option>
+                    </select>
+                    <button class="btn btn-outline" onclick="openExportModal()">📥 导出</button>
+                    <button class="btn btn-outline" onclick="openImportModal()">📤 导入</button>
+                    <button class="btn btn-primary" onclick="openAddModal()"><i class="bi bi-plus-lg"></i>新增企业</button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="padding-left:14px;width:40px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()" style="cursor:pointer;width:16px;height:16px;"></th>
+                            <th style="padding-left:6px;">企业名称</th>
+                            <th>统一社会信用代码</th>
+                            <th>行业</th>
+                            <th>风险等级</th>
+                            <th>绑定用户</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="companyTableBody">
+                        <tr><td colspan="7" class="empty-state">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted" id="pageInfo"></small>
+                <ul class="pagination mb-0" id="pagination"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Company Modal -->
+<div class="modal" id="companyModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">新增企业</h5>
+                <button type="button" class="btn-close" onclick="closeModal('companyModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="companyForm">
+                    <input type="hidden" id="companyId">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">企业名称 <span class="text-danger">*</span></label>
+                            <input class="form-control" id="companyName" required placeholder="请输入企业全称">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">统一社会信用代码 <span class="text-danger">*</span></label>
+                            <input class="form-control" id="creditCode" required placeholder="18位信用代码">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">法人代表</label>
+                            <input class="form-control" id="legalPerson" placeholder="法人姓名">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">行业</label>
+                            <input class="form-control" id="industry" placeholder="如：制造业">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">联系人姓名</label>
+                            <input class="form-control" id="contactName" placeholder="联系人姓名">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">联系人手机 <span class="text-danger">*</span></label>
+                            <input class="form-control" id="contactPhone" required placeholder="11位手机号" maxlength="11">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">注册资本（万元）</label>
+                            <input class="form-control" type="number" step="any" id="registeredCapital" placeholder="0.00">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">成立日期</label>
+                            <input class="form-control" type="date" id="establishDate">
+                        </div>
+                        <div class="col-12">
+                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">注册地址</label>
+                            <input class="form-control" id="address" placeholder="注册地址">
+                        </div>
+                        <div class="col-12">
+                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">经营范围</label>
+                            <textarea class="form-control" id="businessScope" rows="3" placeholder="经营范围描述"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('companyModal')">取消</button>
+                <button type="button" class="btn btn-primary" onclick="saveCompany()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal" id="uploadModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">上传财税数据</h5>
+                <button type="button" class="btn-close" onclick="closeModal('uploadModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="uploadCompanyId">
+                <div style="margin-bottom:14px;">
+                    <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">选择TXT数据文件 <span class="text-danger">*</span></label>
+                    <input class="form-control" type="file" id="uploadFile" accept=".txt">
+                    <div style="font-size:12px;color:#aaa;margin-top:4px;">支持TXT格式的财税异构数据，系统将自动解析清洗</div>
+                </div>
+                <div id="uploadProgress" style="display:none;">
+                    <div style="background:#f0f0f0;border-radius:4px;height:4px;overflow:hidden;margin-bottom:8px;">
+                        <div style="background:var(--primary);height:100%;width:100%;animation:loading 1.5s infinite linear;"></div>
+                    </div>
+                    <p style="text-align:center;color:#aaa;font-size:12px;">正在处理数据，请稍候...</p>
+                </div>
+                <div id="uploadResult" style="display:none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('uploadModal')">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="doUpload()">开始上传</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API = '/api/v1';
+const token = localStorage.getItem('access_token') || '';
+
+function authHeaders() { 
+    const headers = {'Content-Type': 'application/json'};
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    return headers;
+}
+
+async function api(url, opts={}) {
+    const res = await fetch(API + url, {...opts, headers:{...authHeaders(),...(opts.headers||{})}, credentials:'include'});
+    if (res.status === 401) { localStorage.clear(); location.href='/admin/login'; return null; }
+    return res;
+}
+
+function showToast(msg, type='info') {
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+async function doLogout() {
+    await api('/auth/logout', {method:'POST'});
+    localStorage.clear();
+    location.href='/admin/login';
+}
+
+
+let currentPage = 1;
+const pageSize = 15;
+
+const LEVEL_BADGE = {
+    normal:  '<span class="badge badge-green">正常</span>',
+    remind:  '<span class="badge" style="background:#ff9f43;color:#fff">提醒</span>',
+    warning: '<span class="badge badge-yellow">预警</span>',
+    major:   '<span class="badge badge-red">重大风险</span>',
+    major_risk: '<span class="badge badge-red">重大风险</span>',
+};
+
+(function() {
+    if (!token) { location.href='/admin/login'; return; }
+    const ui = JSON.parse(localStorage.getItem('user_info') || '{}');
+    const name = ui.real_name || ui.username || '管理员';
+    document.getElementById('currentUserName').textContent = name;
+    document.getElementById('headerUserName').textContent = name;
+    if (ui.real_name) document.getElementById('userAvatar').textContent = ui.real_name.charAt(0).toUpperCase();
+    loadCompanies();
+})();
+
+async function loadCompanies(page = 1) {
+    const tbody = document.getElementById('companyTableBody');
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">加载中...</td></tr>';
+    try {
+        const keyword = document.getElementById('searchInput').value.trim();
+        const riskLevel = document.getElementById('riskFilter').value;
+        const params = new URLSearchParams({ page, size: pageSize });
+        if (keyword) params.set('keyword', keyword);
+        if (riskLevel) params.set('risk_level', riskLevel);
+        const res = await api(`/companies?${params}`);
+        if (!res) {
+            tbody.innerHTML = '<tr><td colspan="8" class="empty-state">加载失败，请刷新页面重试</td></tr>';
+            return;
+        }
+        const data = await res.json();
+        if (data.code !== 200) {
+            showToast(data.message || '加载数据失败', 'danger');
+            tbody.innerHTML = `<tr><td colspan="8" class="empty-state">加载失败: ${data.message || '未知错误'}</td></tr>`;
+            return;
+        }
+        const { items, total } = data.data;
+        currentPage = page;
+        document.getElementById('pageInfo').textContent = `共 ${total} 条`;
+        if (!items || !items.length) {
+            tbody.innerHTML = '<tr><td colspan="8" class="empty-state">暂无数据</td></tr>';
+            document.getElementById('pagination').innerHTML = '';
+            return;
+        }
+        tbody.innerHTML = items.map(c => `
+        <tr data-id="${c.id}">
+            <td style="padding-left:14px;"><input type="checkbox" class="row-check" value="${c.id}" onchange="updateBatchUI()" style="cursor:pointer;width:16px;height:16px;"></td>
+            <td style="padding-left:6px;font-weight:500">${c.name || '--'}</td>
+            <td style="font-family:monospace;font-size:12px;color:#888">${c.credit_code || '--'}</td>
+            <td>${c.industry || '--'}</td>
+            <td>${LEVEL_BADGE[c.max_risk_level] || LEVEL_BADGE['normal']}</td>
+            <td>${c.bound_users || 0} 人</td>
+            <td class="text-muted small">${(c.created_at||'').slice(0,10)}</td>
+            <td>
+                <button class="btn-outline-secondary" onclick='editCompany(${JSON.stringify(c)})'>编辑</button>
+                <button class="btn-outline-success" onclick="openUpload(${c.id})">上传数据</button>
+                <button class="btn-outline-danger" onclick="deleteCompany(${c.id}, '${(c.name||'').replace(/'/g,"\\'")}')">删除</button>
+            </td>
+        </tr>`).join('');
+        renderPagination(total, page);
+    } catch (err) {
+        console.error('loadCompanies error:', err);
+        showToast('加载失败: ' + err.message, 'danger');
+        tbody.innerHTML = `<tr><td colspan="8" class="empty-state">加载失败，请刷新页面重试<br><small style="color:#999">${err.message}</small></td></tr>`;
+    }
+}
+
+function renderPagination(total, page) {
+    const pages = Math.ceil(total / pageSize);
+    const ul = document.getElementById('pagination');
+    ul.innerHTML = '';
+    for (let i = 1; i <= Math.min(pages, 10); i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i===page?'active':''}`;
+        li.innerHTML = `<a class="page-link" href="#" onclick="loadCompanies(${i});return false;">${i}</a>`;
+        ul.appendChild(li);
+    }
+}
+
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = '新增企业';
+    document.getElementById('companyForm').reset();
+    document.getElementById('companyId').value = '';
+    document.getElementById('companyModal').classList.add('show');
+}
+
+function editCompany(c) {
+    document.getElementById('modalTitle').textContent = '编辑企业';
+    document.getElementById('companyId').value = c.id;
+    document.getElementById('companyName').value = c.name || '';
+    document.getElementById('creditCode').value = c.credit_code || '';
+    document.getElementById('legalPerson').value = c.legal_person || '';
+    document.getElementById('contactName').value = c.contact_name || '';
+    document.getElementById('contactPhone').value = c.contact_phone || '';
+    document.getElementById('industry').value = c.industry || '';
+    document.getElementById('registeredCapital').value = c.registered_capital || '';
+    document.getElementById('establishDate').value = c.establish_date || '';
+    document.getElementById('address').value = c.address || '';
+    document.getElementById('businessScope').value = c.business_scope || '';
+    document.getElementById('companyModal').classList.add('show');
+}
+
+async function saveCompany() {
+    const id = document.getElementById('companyId').value;
+    const body = {
+        name: document.getElementById('companyName').value,
+        credit_code: document.getElementById('creditCode').value,
+        legal_person: document.getElementById('legalPerson').value,
+        contact_name: document.getElementById('contactName').value,
+        contact_phone: document.getElementById('contactPhone').value,
+        industry: document.getElementById('industry').value,
+        registered_capital: document.getElementById('registeredCapital').value || null,
+        establish_date: document.getElementById('establishDate').value || null,
+        address: document.getElementById('address').value,
+        business_scope: document.getElementById('businessScope').value,
+    };
+    const url = id ? `/companies/${id}` : '/companies';
+    const method = id ? 'PUT' : 'POST';
+    const res = await api(url, { method, body: JSON.stringify(body) });
+    if (!res) return;
+    const data = await res.json();
+    if (res.status === 422) {
+        const msgs = (data.detail || []).map(d => d.msg).join('；');
+        showToast('表单验证失败：' + (msgs || JSON.stringify(data.detail)), 'danger');
+        return;
+    }
+    if (data.code === 200) {
+        closeModal('companyModal');
+        loadCompanies(currentPage);
+        showToast('保存成功', 'success');
+    } else {
+        showToast(data.message || data.detail || '保存失败', 'danger');
+    }
+}
+
+async function deleteCompany(id, name) {
+    if (!confirm(`确定要删除企业「${name}」吗？此操作不可恢复！`)) return;
+    const res = await api(`/companies/${id}`, { method: 'DELETE' });
+    if (!res) return;
+    const data = await res.json();
+    if (data.code === 200) {
+        clearSelection();
+        loadCompanies(currentPage);
+        showToast('删除成功', 'success');
+    } else {
+        showToast(data.message || '删除失败', 'danger');
+    }
+}
+
+function getSelectedIds() {
+    return Array.from(document.querySelectorAll('.row-check:checked')).map(el => parseInt(el.value));
+}
+
+function updateBatchUI() {
+    const ids = getSelectedIds();
+    const count = ids.length;
+    const batchDiv = document.getElementById('batchActions');
+    if (count > 0) {
+        batchDiv.style.display = 'flex';
+        document.getElementById('selectedCount').textContent = `已选 ${count} 项`;
+    } else {
+        batchDiv.style.display = 'none';
+    }
+    // 同步全选状态
+    const allChecks = document.querySelectorAll('.row-check');
+    const selectAll = document.getElementById('selectAll');
+    if (allChecks.length > 0 && count === allChecks.length) {
+        selectAll.checked = true;
+        selectAll.indeterminate = false;
+    } else if (count > 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = true;
+    } else {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+    }
+}
+
+function toggleSelectAll() {
+    const checked = document.getElementById('selectAll').checked;
+    document.querySelectorAll('.row-check').forEach(el => { el.checked = checked; });
+    updateBatchUI();
+}
+
+function clearSelection() {
+    document.querySelectorAll('.row-check').forEach(el => { el.checked = false; });
+    document.getElementById('selectAll').checked = false;
+    updateBatchUI();
+}
+
+async function batchDeleteCompanies() {
+    const ids = getSelectedIds();
+    if (!ids.length) { showToast('请先选择要删除的企业', 'warning'); return; }
+    if (!confirm(`确定要删除选中的 ${ids.length} 家企业吗？此操作不可恢复！`)) return;
+    const res = await api('/companies/batch-delete', {
+        method: 'POST',
+        body: JSON.stringify({ ids }),
+    });
+    if (!res) return;
+    const data = await res.json();
+    if (data.code === 200) {
+        clearSelection();
+        loadCompanies(currentPage);
+        showToast(`成功删除 ${data.data.deleted} 条企业记录`, 'success');
+    } else {
+        showToast(data.message || '批量删除失败', 'danger');
+    }
+}
+
+function batchExport() {
+    const ids = getSelectedIds();
+    if (!ids.length) { showToast('请先选择要导出的企业', 'warning'); return; }
+    const token = localStorage.getItem('access_token') || '';
+    const params = new URLSearchParams({ ids: ids.join(',') });
+    const a = document.createElement('a');
+    a.href = `${API}/companies/export?${params}`;
+    a.download = '';
+    a.click();
+}
+
+function openUpload(companyId) {
+    document.getElementById('uploadCompanyId').value = companyId;
+    document.getElementById('uploadFile').value = '';
+    document.getElementById('uploadProgress').style.display = 'none';
+    document.getElementById('uploadResult').style.display = 'none';
+    document.getElementById('uploadModal').classList.add('show');
+}
+
+async function doUpload() {
+    const cid = document.getElementById('uploadCompanyId').value;
+    const file = document.getElementById('uploadFile').files[0];
+    if (!file) { showToast('请选择文件', 'warning'); return; }
+    document.getElementById('uploadProgress').style.display = 'block';
+    document.getElementById('uploadResult').style.display = 'none';
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+        const res = await fetch(`${API}/companies/${cid}/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData,
+        });
+        const data = await res.json();
+        document.getElementById('uploadProgress').style.display = 'none';
+        const resultDiv = document.getElementById('uploadResult');
+        resultDiv.style.display = 'block';
+        if (data.code === 200) {
+            const r = data.data;
+            resultDiv.innerHTML = `<div style="background:#eafaf1;color:#27ae60;padding:12px;border-radius:8px;font-size:13px;"><b>数据处理完成！</b><br>解析指标：${r.total_indicators} 个，成功入库：${r.saved} 个，跳过：${r.skipped} 个</div>`;
+            loadCompanies(currentPage);
+        } else {
+            resultDiv.innerHTML = `<div style="background:#fdedec;color:#e74c3c;padding:12px;border-radius:8px;font-size:13px;">${data.message || '上传失败'}</div>`;
+        }
+    } catch(e) {
+        document.getElementById('uploadProgress').style.display = 'none';
+        showToast('上传请求失败：' + e.message, 'danger');
+    }
+}
+
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => loadCompanies(1), 400);
+});
+document.getElementById('riskFilter').addEventListener('change', () => loadCompanies(1));
+
+// ===== Export/Import Functions =====
+let selectedExportScope = 'filtered';
+
+function openExportModal() {
+    selectedExportScope = 'filtered';
+    document.getElementById('exportModalTitle').textContent = '📥 导出企业信息';
+    document.querySelectorAll('#exportRadioGroup .radio-item').forEach((el, i) => {
+        el.classList.toggle('selected', i === 0);
+    });
+    document.getElementById('exportModal').classList.add('show');
+}
+
+function selectExportOption(el, val) {
+    selectedExportScope = val;
+    document.querySelectorAll('#exportRadioGroup .radio-item').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+}
+
+async function doExport() {
+    document.getElementById('exportModal').classList.remove('show');
+    const keyword = document.getElementById('searchInput').value;
+    const riskLevel = document.getElementById('riskFilter').value;
+    let url = `/companies/export?`;
+    if (selectedExportScope === 'filtered') {
+        if (keyword) url += `keyword=${encodeURIComponent(keyword)}&`;
+        if (riskLevel) url += `risk_level=${riskLevel}`;
+    }
+    try {
+        const res = await fetch(API + url, { headers: authHeaders() });
+        if (!res.ok) throw new Error('导出失败');
+        const blob = await res.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `企业信息_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`;
+        a.click();
+        showToast('导出成功！', 'success');
+    } catch (e) {
+        showToast('导出失败：' + e.message, 'danger');
+    }
+}
+
+let currentImportModule = '';
+
+function openImportModal() {
+    currentImportModule = 'companies';
+    document.getElementById('importResult').style.display = 'none';
+    document.getElementById('uploadZone').style.display = 'block';
+    document.getElementById('importFileInput').value = '';
+    document.getElementById('importFooter').style.display = 'none';
+    document.getElementById('importModal').classList.add('show');
+}
+
+function closeImportModal() {
+    document.getElementById('importModal').classList.remove('show');
+}
+
+let selectedImportFile = null;
+
+function handleFileSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    selectedImportFile = file;
+    document.getElementById('uploadZone').innerHTML = `
+        <div class="icon">📄</div>
+        <div style="font-weight:500;">${file.name}</div>
+        <div class="tip">点击或拖拽文件到此处重新选择</div>
+    `;
+    document.getElementById('importFooter').style.display = 'flex';
+}
+
+function downloadImportTemplate() {
+    fetch(API + '/companies/template', { headers: authHeaders() })
+        .then(r => { if (!r.ok) throw new Error('获取模板失败'); return r.blob(); })
+        .then(blob => {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = '企业导入模板.xlsx';
+            a.click();
+        })
+        .catch(e => showToast('下载模板失败: ' + e.message, 'error'));
+}
+
+async function doImport() {
+    if (!selectedImportFile) {
+        showToast('请先选择文件', 'warning');
+        return;
+    }
+    const formData = new FormData();
+    formData.append('file', selectedImportFile);
+    document.getElementById('importConfirmBtn').disabled = true;
+    document.getElementById('importConfirmBtn').textContent = '导入中...';
+    try {
+        const res = await fetch(API + '/companies/import', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token },
+            body: formData
+        });
+        const data = await res.json();
+        const resultDiv = document.getElementById('importResult');
+        resultDiv.style.display = 'block';
+        if (data.code === 200) {
+            resultDiv.className = 'import-result success';
+            resultDiv.innerHTML = `<strong>导入成功！</strong><br>成功：${data.data.created} 条`;
+            if (data.data.errors && data.data.errors.length) {
+                resultDiv.innerHTML += `<br>失败：${data.data.errors.length} 条`;
+                resultDiv.innerHTML += `<div class="err-item">${data.data.errors.slice(0, 5).join('<br>')}</div>`;
+            }
+            setTimeout(() => {
+                closeImportModal();
+                loadCompanies(1);
+            }, 1500);
+        } else {
+            resultDiv.className = 'import-result error';
+            resultDiv.innerHTML = `<strong>导入失败</strong><br>${data.message || JSON.stringify(data)}`;
+        }
+    } catch (e) {
+        document.getElementById('importResult').style.display = 'block';
+        document.getElementById('importResult').className = 'import-result error';
+        document.getElementById('importResult').innerHTML = `<strong>导入失败</strong><br>${e.message}`;
+    } finally {
+        document.getElementById('importConfirmBtn').disabled = false;
+        document.getElementById('importConfirmBtn').textContent = '开始导入';
+    }
+}
+
+// Drag and drop
+const uploadZone = document.getElementById('uploadZone');
+if (uploadZone) {
+    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+    uploadZone.addEventListener('drop', e => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            document.getElementById('importFileInput').files = e.dataTransfer.files;
+            handleFileSelect(document.getElementById('importFileInput'));
+        }
+    });
+}
+</script>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 id="exportModalTitle">📥 导出数据</h3>
+            <button class="close-btn" onclick="document.getElementById('exportModal').classList.remove('show')">✕</button>
+        </div>
+        <p style="font-size:13px;color:#888;margin-bottom:14px;">请选择导出范围：</p>
+        <div class="radio-group" id="exportRadioGroup">
+            <div class="radio-item selected" onclick="selectExportOption(this,'filtered')">
+                <input type="radio" name="export_scope" value="filtered" checked>
+                <span>📋 导出当前筛选结果</span>
+            </div>
+            <div class="radio-item" onclick="selectExportOption(this,'all')">
+                <input type="radio" name="export_scope" value="all">
+                <span>🌐 导出全部数据</span>
+            </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+            <button class="btn btn-outline" onclick="document.getElementById('exportModal').classList.remove('show')">取消</button>
+            <button class="btn btn-primary" onclick="doExport()">确认导出</button>
+        </div>
+    </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal-overlay" id="importModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>📤 导入企业数据</h3>
+            <button class="close-btn" onclick="closeImportModal()">✕</button>
+        </div>
+        <div id="importResult" style="display:none;"></div>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('importFileInput').click()">
+            <input type="file" id="importFileInput" accept=".xlsx,.xls" onchange="handleFileSelect(this)">
+            <div class="icon">📤</div>
+            <div style="font-weight:500;">点击选择文件或拖拽文件到此处</div>
+            <div class="tip">支持 .xlsx / .xls 文件，建议先下载导入模板</div>
+        </div>
+        <div style="margin-top:12px;text-align:center;">
+            <button class="btn btn-outline btn-sm" onclick="downloadImportTemplate()">📥 下载导入模板</button>
+        </div>
+        <div id="importFooter" style="display:none;justify-content:flex-end;gap:10px;margin-top:20px;">
+            <button class="btn btn-outline" onclick="closeImportModal()">关闭</button>
+            <button class="btn btn-primary" id="importConfirmBtn" onclick="doImport()">开始导入</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

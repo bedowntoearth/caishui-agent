@@ -1,0 +1,47 @@
+<!-- pages/login/login.wxml -->
+<view class="login-container">
+  <!-- 背景装饰 -->
+  <view class="bg-deco"></view>
+
+  <view class="content">
+    <view class="logo-section">
+      <view class="logo-icon">🧾</view>
+      <text class="logo-title">财税智能体</text>
+      <text class="logo-subtitle">智能财税风险评估平台</text>
+    </view>
+
+    <view class="card login-card">
+      <text class="welcome-text">欢迎登录</text>
+      <text class="desc-text">实时掌握企业财税健康状况，获取专业风险解读</text>
+
+      <button
+        class="btn-login {{ loading ? 'disabled' : '' }}"
+        open-type="getPhoneNumber"
+        bindgetphonenumber="getPhoneNumber"
+        disabled="{{ loading }}"
+      >
+        <text wx:if="{{ loading }}" class="loading-text">正在验证...</text>
+        <text wx:else>📱 微信一键授权登录</text>
+      </button>
+
+      <view class="tips">
+        <view class="tip-item">
+          <text class="tip-dot">✓</text>
+          <text>安全加密传输，保护您的隐私数据</text>
+        </view>
+        <view class="tip-item">
+          <text class="tip-dot">✓</text>
+          <text>授权后可随时查看企业财税状况</text>
+        </view>
+        <view class="tip-item">
+          <text class="tip-dot">✓</text>
+          <text>AI智能解读，专业易懂的风险报告</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="footer">
+      <text>© 2026 财税智能体系统 · MVP版本</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,70 @@
+<!-- pages/risk/risk.wxml -->
+<view class="page-container">
+  <!-- 统计期间和健康度 -->
+  <view class="card header-info" wx:if="{{ hasData }}">
+    <view class="flex-between">
+      <view>
+        <text class="period-label">统计期间</text>
+        <text class="period-value">{{ period }}</text>
+      </view>
+      <view class="score-badge {{ healthScore >= 80 ? 'good' : healthScore >= 60 ? 'fair' : 'poor' }}">
+        <text>综合健康度: {{ healthScore }}分</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 风险指标卡片列表 -->
+  <view wx:if="{{ loading }}" style="padding:80rpx;text-align:center;">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">正在加载风险数据...</text>
+  </view>
+
+  <view wx:elif="{{ !hasData }}">
+    <view class="empty-state card">
+      <text class="empty-icon">📭</text>
+      <text class="empty-title">暂无风险数据</text>
+      <text class="empty-desc">运营人员尚未录入您企业的风险指标数据，请稍后再试</text>
+    </view>
+  </view>
+
+  <block wx:else>
+    <!-- 按风险等级排序的卡片列表 -->
+    <view
+      class="risk-card card bg-{{ item.levelInfo.bgClass }}"
+      catchtap="onTapIndicator"
+      data-index="{{ item.index }}"
+      wx:for="{{ indicators }}"
+      wx:for-item="item"
+      wx:key="index"
+    >
+      <view class="card-header-row flex-between">
+        <view class="flex-start">
+          <text class="risk-num">{{ index + 1 }}</text>
+          <text class="risk-name">{{ item.name }}</text>
+        </view>
+        <view class="{{ item.levelInfo.cls }}">{{ item.levelInfo.text }}</view>
+      </view>
+
+      <view class="card-body-row" wx:if="{{ item.reason }}">
+        <text class="reason-label">触发原因：</text>
+        <text class="reason-value">{{ item.reason }}</text>
+      </view>
+
+      <view class="ai-hint" wx:if="{{ item.level !== 'normal' }}">
+        <text>🤖 点击查看 AI 专业解读报告</text>
+        <text class="arrow">›</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- 图例说明 -->
+  <view class="legend card" wx:if="{{ hasData }}">
+    <text class="legend-title">图例说明</text>
+    <view class="legend-items">
+      <view class="legend-item"><view class="dot normal"></view><text>正常</text></view>
+      <view class="legend-item"><view class="dot remind"></view><text>提醒</text></view>
+      <view class="legend-item"><view class="dot warning"></view><text>预警</text></view>
+      <view class="legend-item"><view class="dot major"></view><text>重大风险</text></view>
+    </view>
+  </view>
+</view>

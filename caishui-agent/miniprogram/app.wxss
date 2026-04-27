@@ -1,0 +1,45 @@
+/* app.wxss - 全局样式 */
+page {
+  background-color: #f4f6fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  color: #333;
+  font-size: 28rpx;
+}
+
+/* 主题色 */
+.theme-primary { color: #4361ee; }
+.theme-bg-primary { background-color: #4361ee; }
+.theme-dark { color: #1a1a2e; }
+
+/* 卡片 */
+.card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.05);
+}
+
+/* 风险等级颜色 */
+.risk-normal { color: #27ae60; }
+.risk-remind { color: #d68910; }
+.risk-warning { color: #e67e22; }
+.risk-major { color: #e74c3c; }
+
+.bg-normal { background-color: #eafaf1 !important; }
+.bg-remind { background-color: #fef9e7 !important; }
+.bg-warning { background-color: #fef5e4 !important; }
+.bg-major { background-color: #fdedec !important; }
+
+.badge-normal { background: #eafaf1; color: #27ae60; padding: 6rpx 16rpx; border-radius: 20rpx; font-size: 22rpx; font-weight: 500; }
+.badge-remind { background: #fef9e7; color: #d68910; padding: 6rpx 16rpx; border-radius: 20rpx; font-size: 22rpx; font-weight: 500; }
+.badge-warning { background: #fef5e4; color: #e67e22; padding: 6rpx 16rpx; border-radius: 20rpx; font-size: 22rpx; font-weight: 500; }
+.badge-major { background: #fdedec; color: #e74c3c; padding: 6rpx 16rpx; border-radius: 20rpx; font-size: 22rpx; font-weight: 500; }
+
+/* 安全容器 */
+.safe-area-bottom { padding-bottom: constant(safe-area-inset-bottom); padding-bottom: env(safe-area-inset-bottom); }
+
+/* Flex工具类 */
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-start { display: flex; align-items: center; }

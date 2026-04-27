@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 财税智能体系统</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+               background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; }
+        .login-card { background:#fff; border-radius:16px; padding:48px; width:420px; box-shadow:0 20px 60px rgba(0,0,0,.3); }
+        .login-header { text-align:center; margin-bottom:36px; }
+        .login-header h1 { font-size:24px; color:#1a1a2e; margin-bottom:8px; }
+        .login-header p { color:#888; font-size:14px; }
+        .form-group { margin-bottom:22px; position:relative; }
+        .form-group label { display:block; font-size:13px; color:#555; margin-bottom:6px; font-weight:500; }
+        .form-group input { width:100%; padding:12px 14px; border:2px solid #e8e8e8; border-radius:10px; font-size:15px; transition:.3s; outline:none; }
+        .form-group input:focus { border-color:#4361ee; box-shadow:0 0 0 3px rgba(67,97,238,.12); }
+        .captcha-row { display:flex; gap:10px; align-items:flex-end; }
+        .captcha-row input { flex:1; }
+        .captcha-img { height:46px; border-radius:8px; cursor:pointer; border:2px solid #e8e8e8; flex-shrink:0; background:#f5f5f5; display:flex; align-items:center; justify-content:center; min-width:120px; overflow:hidden; }
+        .captcha-img img { max-height:40px; max-width:110px; object-fit:contain; }
+        .btn-login { width:100%; padding:14px; background:linear-gradient(135deg,#4361ee,#3a0ca3); color:#fff; border:none; border-radius:10px; font-size:16px; font-weight:600; cursor:pointer; transition:.3s; letter-spacing:4px; }
+        .btn-login:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(67,97,238,.35); }
+        .btn-login:active { transform:translateY(0); }
+        .error-msg { color:#e74c3c; font-size:13px; text-align:center; margin-top:12px; display:none; }
+        .loading-overlay { display:none; position:absolute; inset:0; background:rgba(255,255,255,.85); border-radius:10px; z-index:10; justify-content:center; align-items:center; }
+        .spinner { width:32px; height:32px; border:3px solid #eee; border-top-color:#4361ee; border-radius:50%; animation:spin .7s linear infinite; }
+        @keyframes spin { to{transform:rotate(360deg)} }
+    </style>
+</head>
+<body>
+<div class="login-card">
+    <div class="login-header">
+        <h1>🧾 财税智能体系统</h1>
+        <p>智能财税风险评估管理平台</p>
+    </div>
+    <form id="loginForm" onsubmit="return false;">
+        <div class="form-group">
+            <label>用户名</label>
+            <input type="text" id="username" placeholder="请输入用户名" required autocomplete="username">
+        </div>
+        <div class="form-group">
+            <label>密码</label>
+            <input type="password" id="password" placeholder="请输入密码" required autocomplete="current-password">
+        </div>
+        <div class="form-group captcha-row">
+            <div style="flex:1">
+                <label>验证码</label>
+                <input type="text" id="captcha_code" placeholder="输入验证码" maxlength="6" required>
+            </div>
+            <div class="captcha-img" onclick="loadCaptcha()" title="点击刷新验证码" id="captchaContainer"></div>
+        </div>
+        <input type="hidden" id="captcha_key">
+        <button type="submit" class="btn-login" onclick="doLogin()">登 录</button>
+        <div class="error-msg" id="errorMsg"></div>
+    </form>
+    <div class="loading-overlay"><div class="spinner"></div></div>
+</div>
+
+<script>
+const API = '/api/v1';
+
+async function loadCaptcha() {
+    try {
+        const res = await fetch(`${API}/auth/captcha`);
+        const data = await res.json();
+        document.getElementById('captcha_key').value = data.key;
+        document.getElementById('captchaContainer').innerHTML = `<img src="${data.image}" alt="验证码">`;
+    } catch(e) {
+        console.error('加载验证码失败:', e);
+    }
+}
+
+function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg; el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 4000);
+}
+
+function setLoading(show) {
+    document.querySelector('.loading-overlay').style.display = show ? 'flex' : 'none';
+}
+
+async function doLogin() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const captchaKey = document.getElementById('captcha_key').value;
+    const captchaCode = document.getElementById('captcha_code').value.trim();
+
+    if (!username || !password) { showError('请填写用户名和密码'); return; }
+    if (!captchaCode) { showError('请输入验证码'); return; }
+
+    setLoading(true);
+    try {
+        const res = await fetch(`${API}/auth/login`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                username, password,
+                captcha_key: captchaKey, captcha_code: captchaCode
+            })
+        });
+        const data = await res.json();
+        if (res.ok && data.access_token) {
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
+            localStorage.setItem('user_info', JSON.stringify(data.user_info));
+            window.location.href = '/admin/';
+        } else {
+            showError(data.detail || data.message || '登录失败');
+            loadCaptcha();
+        }
+    } catch(e) {
+        showError('网络错误，请稍后重试');
+    } finally {
+        setLoading(false);
+    }
+}
+
+// 页面加载时获取验证码
+loadCaptcha();
+
+// 回车提交
+document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+</body>
+</html>

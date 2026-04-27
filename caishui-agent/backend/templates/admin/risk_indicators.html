@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财税智能体系统 - 风险指标管理</title>
+    <style>
+        :root { --primary:#4361ee; --primary-dark:#3a0ca3; --success:#2ecc71; --warning:#f39c12; --danger:#e74c3c; --info:#3498db;
+            --sidebar-w:240px; --header-h:60px; --bg:#f4f6fa; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif; }
+        body { background:var(--bg); display:flex; min-height:100vh; }
+        .sidebar { width:var(--sidebar-w); background:linear-gradient(180deg,#1a1a2e 0%,#16213e 100%); color:#fff; position:fixed; top:0; left:0; height:100vh; overflow-y:auto; z-index:100; transition:.3s; flex-shrink:0; }
+        .sidebar-logo { padding:20px 20px 16px; border-bottom:1px solid rgba(255,255,255,.08); display:flex; align-items:center; gap:10px; }
+        .sidebar-logo .icon { font-size:28px; }
+        .sidebar-logo span { font-size:17px; font-weight:700; letter-spacing:1px; }
+        .nav-item { padding:12px 24px; cursor:pointer; display:flex; align-items:center; gap:10px; color:rgba(255,255,255,.7); transition:.2s; font-size:14px; border-left:3px solid transparent; user-select:none; }
+        .nav-item:hover { color:#fff; background:rgba(255,255,255,.06); }
+        .nav-item.active { color:#fff; background:rgba(67,97,238,.2); border-left-color:var(--primary); }
+        .nav-item i { width:22px; text-align:center; font-size:16px; }
+        .nav-section { padding:16px 20px 6px; font-size:11px; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1.5px; margin-top:8px; }
+        .sidebar-bottom { padding:16px 20px; border-top:1px solid rgba(255,255,255,.08); position:absolute; bottom:0; width:100%; }
+        .main-wrap { margin-left:var(--sidebar-w); flex:1; min-width:0; display:flex; flex-direction:column; }
+        .header { height:var(--header-h); background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.06); display:flex; align-items:center; justify-content:space-between; padding:0 28px; position:sticky; top:0; z-index:50; }
+        .header-left h2 { font-size:18px; color:#333; }
+        .header-right { display:flex; align-items:center; gap:18px; }
+        .user-info { display:flex; align-items:center; gap:8px; font-size:13px; color:#555; cursor:pointer; }
+        .user-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px; }
+        .content { padding:28px; flex:1; }
+        .card { background:#fff; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,.04); overflow:hidden; margin-bottom:20px; }
+        .card-header { padding:18px 24px; border-bottom:1px solid #f0f0f0; font-size:15px; color:#333; font-weight:600; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+        .card-body { padding:20px 24px; }
+        .card-body.py-2 { padding-top:10px; padding-bottom:10px; }
+        .card-body.p-0 { padding:0; }
+        .card-footer { padding:14px 24px; border-top:1px solid #f0f0f0; background:#fafafa; display:flex; justify-content:space-between; align-items:center; }
+        table { width:100%; border-collapse:collapse; }
+        th { background:#fafafa; padding:11px 14px; text-align:left; font-size:13px; color:#666; font-weight:600; border-bottom:1px solid #eee; white-space:nowrap; }
+        td { padding:11px 14px; font-size:13.5px; color:#444; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
+        tr:hover { background:#fcfdff; cursor:pointer; }
+        .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:500; }
+        .badge-green{background:#eafaf1;color:#27ae60} .badge-red{background:#fdedec;color:#e74c3c}
+        .badge-yellow{background:#fef9e7;color:#d68910} .badge-blue{background:#ebf5fb;color:#2980b9}
+        .empty-state { text-align:center; padding:48px 20px; color:#aaa; }
+        .toast-container { position:fixed; top:20px; right:20px; z-index:300; }
+        .toast { background:#333; color:#fff; padding:12px 20px; border-radius:10px; margin-bottom:8px; font-size:13px; box-shadow:0 4px 15px rgba(0,0,0,.15); animation:toastIn .3s ease; }
+        .toast.success{background:#27ae60}.toast.danger{background:#e74c3c}.toast.warning{background:#f39c12}.toast.info{background:#3498db}
+        @keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+        .btn { display:inline-flex; align-items:center; gap:5px; padding:8px 18px; border:none; border-radius:8px; font-size:13px; cursor:pointer; transition:.2s; font-weight:500; white-space:nowrap; text-decoration:none; }
+        .btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:#3555d9}
+        .btn-secondary{background:#e9ecef;color:#495057}.btn-secondary:hover{background:#dee2e6}
+        .btn-outline-secondary,.btn-outline-danger,.btn-outline{background:transparent;border:1.5px solid #ddd;color:#555;padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer}
+        .btn-outline-secondary:hover{border-color:#6c757d;color:#6c757d}
+        .btn-outline-danger:hover{border-color:#e74c3c;color:#e74c3c}
+        .form-control,.form-select { padding:7px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; outline:none; transition:.2s; }
+        .form-control:focus,.form-select:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(67,97,238,.1); }
+        .pagination { display:flex; list-style:none; gap:4px; }
+        .page-item { }
+        .page-link { padding:5px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:12px; cursor:pointer; color:#555; text-decoration:none; }
+        .page-item.active .page-link { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); z-index:200; align-items:center; justify-content:center; }
+        .modal.show { display:flex; }
+        .modal-dialog { background:#fff; border-radius:14px; width:680px; max-width:95vw; max-height:90vh; overflow:auto; }
+        .modal-content { border-radius:14px; overflow:hidden; }
+        .modal-header { padding:18px 24px; border-bottom:1px solid #f0f0f0; display:flex; justify-content:space-between; align-items:center; }
+        .modal-body { padding:20px 24px; }
+        .modal-footer { padding:14px 24px; border-top:1px solid #f0f0f0; display:flex; justify-content:flex-end; gap:10px; }
+        .modal-title { font-size:16px; font-weight:600; }
+        .btn-close { background:none; border:none; font-size:20px; cursor:pointer; color:#888; }
+        .text-muted{color:#aaa}.text-danger{color:#e74c3c}.small{font-size:12px}
+        .row { display:flex; flex-wrap:wrap; gap:16px; }
+        /* Health Score */
+        .health-score { font-size:20px; font-weight:700; }
+        .health-high { color:#27ae60; }
+        .health-mid { color:#f39c12; }
+        .health-low { color:#e74c3c; }
+        /* Risk mini badges */
+        .risk-mini { display:inline-flex; gap:4px; flex-wrap:wrap; }
+        .risk-dot { width:16px; height:16px; border-radius:50%; display:inline-block; }
+        .risk-dot.normal { background:#27ae60; }
+        .risk-dot.remind { background:#f39c12; }
+        .risk-dot.warning { background:#e67e22; }
+        .risk-dot.major, .risk-dot.major_risk { background:#e74c3c; }
+        /* Detail Modal */
+        .detail-section { margin-bottom:20px; }
+        .detail-section-title { font-size:14px; font-weight:600; color:#333; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid var(--primary); }
+        .detail-row { display:flex; padding:8px 0; border-bottom:1px solid #f5f5f5; }
+        .detail-label { width:140px; color:#666; font-size:13px; flex-shrink:0; }
+        .detail-value { flex:1; font-size:13px; color:#333; }
+        .detail-value .badge { margin-right:4px; }
+        /* Import/Export Modal Styles */
+        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); z-index:200; align-items:center; justify-content:center; }
+        .modal-overlay.show { display:flex; }
+        .modal-box { background:#fff; border-radius:14px; width:480px; max-width:95vw; padding:24px; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .modal-header h3 { font-size:18px; margin:0; }
+        .close-btn { background:none; border:none; font-size:22px; cursor:pointer; color:#888; }
+        .radio-group { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+        .radio-item { padding:12px 16px; border:2px solid #e2e8f0; border-radius:10px; cursor:pointer; transition:.2s; }
+        .radio-item:hover { border-color:var(--primary); background:#f5f7ff; }
+        .radio-item.selected { border-color:var(--primary); background:#eef1ff; color:var(--primary); }
+        .radio-item input[type=radio] { display:none; }
+        /* Import Modal */
+        .upload-zone { border:2px dashed #ccc; border-radius:12px; padding:32px; text-align:center; cursor:pointer; transition:.2s; }
+        .upload-zone:hover,.upload-zone.dragover { border-color:var(--primary); background:#f5f7ff; }
+        .upload-zone input[type=file] { display:none; }
+        .upload-zone .icon { font-size:36px; margin-bottom:8px; }
+        .upload-zone .tip { font-size:13px; color:#888; margin-top:6px; }
+        .import-result { display:none; margin-bottom:12px; padding:12px; border-radius:8px; font-size:13px; }
+        .import-result.success { background:#eafaf1; color:#27ae60; border:1px solid #27ae60; }
+        .import-result.error { background:#fdedec; color:#e74c3c; border:1px solid #e74c3c; }
+        .import-result .err-item { margin-top:6px; font-size:12px; color:#c0392b; word-break:break-all; }
+        .radio-item.selected::before { content:'✓ '; font-weight:700; }
+        /* Search Select */
+        .search-select-option { padding:10px 14px; cursor:pointer; font-size:13px; border-bottom:1px solid #f5f5f5; transition:.15s; }
+        .search-select-option:hover { background:#f5f7ff; }
+        .search-select-option.selected { background:#eef1ff; color:var(--primary); font-weight:500; }
+        .search-select-option:last-child { border-bottom:none; }
+        .search-select-empty { padding:16px; text-align:center; color:#aaa; font-size:13px; }
+        .search-select-loading { padding:16px; text-align:center; color:#888; font-size:13px; }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-logo"><span class="icon">🧾</span><span>财税智能体</span></div>
+    <div class="nav-section">📊 核心功能</div>
+    <div class="nav-item" onclick="location.href='/admin/dashboard'"><i>📋</i> 数据总览</div>
+    <div class="nav-item" onclick="location.href='/admin/companies'"><i>🏢</i> 企业信息管理</div>
+    <div class="nav-item active"><i>⚠️</i> 风险指标管理</div>
+    <div class="nav-section">⚙️ 系统设置</div>
+    <div class="nav-item" onclick="location.href='/admin/users'"><i>👥</i> 系统用户管理</div>
+    <div class="nav-item" onclick="location.href='/admin/wx-users'"><i>📱</i> 小程序用户管理</div>
+    <div class="nav-item" onclick="location.href='/admin/llm-config'"><i>🤖</i> 大模型配置</div>
+    <div class="sidebar-bottom">
+        <div class="user-info" style="justify-content:space-between;width:100%;">
+            <span id="currentUserName">管理员</span>
+            <button class="btn btn-outline-secondary btn-sm" onclick="doLogout()">退出登录</button>
+        </div>
+    </div>
+</div>
+
+<!-- Main -->
+<div class="main-wrap">
+    <div class="header">
+        <div class="header-left"><h2>风险指标管理</h2></div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <span id="headerUserName">管理员</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- Filter -->
+        <div class="card" style="margin-bottom:16px;">
+            <div class="card-body py-2">
+                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                    <div id="batchActions" style="display:none;align-items:center;gap:8px;">
+                        <span style="font-size:12px;color:#888;" id="selectedCount">已选 0 项</span>
+                        <button class="btn btn-outline-danger" style="padding:4px 10px;font-size:12px;" onclick="batchDeleteIndicators()">批量删除</button>
+                        <button class="btn btn-outline-secondary" style="padding:4px 10px;font-size:12px;" onclick="clearSelection()">取消选择</button>
+                    </div>
+                    <input type="text" id="keywordInput" placeholder="🔍 搜索企业名称" onkeydown="if(event.key==='Enter')loadIndicators(1)" style="padding:6px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;min-width:200px;">
+                    <select id="levelFilter" onchange="loadIndicators(1)" style="padding:6px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;min-width:150px;">
+                        <option value="">全部风险等级</option>
+                        <option value="normal">正常</option>
+                        <option value="remind">提醒</option>
+                        <option value="warning">预警</option>
+                        <option value="major">重大风险</option>
+                    </select>
+                    <button class="btn btn-outline" onclick="openExportModal()">📥 导出</button>
+                    <button class="btn btn-outline" onclick="openImportModal()">📤 导入</button>
+                    <div style="margin-left:auto;">
+                        <button class="btn btn-primary" onclick="openAddModal()"><i class="bi bi-plus-lg"></i>录入指标</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card">
+            <div class="card-body p-0">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="padding-left:14px;width:40px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()" style="cursor:pointer;width:16px;height:16px;"></th>
+                            <th style="padding-left:6px;">企业名称</th>
+                            <th>统计期间</th>
+                            <th>健康评分</th>
+                            <th>六项指标等级</th>
+                            <th>更新时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="indicatorTableBody">
+                        <tr><td colspan="7" class="empty-state">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted" id="pageInfo"></small>
+                <ul class="pagination mb-0" id="pagination"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal" id="addModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalTitle">录入风险指标</h5>
+                <button type="button" class="btn-close" onclick="closeAddModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addForm">
+                    <input type="hidden" id="addId">
+                    <div style="margin-bottom:14px;">
+                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">所属企业 <span class="text-danger">*</span></label>
+                        <div class="search-select-wrapper" style="position:relative;">
+                            <input type="hidden" id="addCompany" value="">
+                            <input type="text" id="addCompanyInput" class="form-control" placeholder="搜索企业名称..." autocomplete="off" style="width:100%;">
+                            <div id="addCompanyDropdown" class="search-select-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:0 0 8px 8px;max-height:240px;overflow-y:auto;z-index:1000;box-shadow:0 4px 12px rgba(0,0,0,.1);">
+                                <div id="addCompanyOptions"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">统计期间 <span class="text-danger">*</span></label>
+                        <input class="form-control" type="month" id="addPeriod" required style="width:100%;">
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">指标1：是否按期申报</label>
+                        <select class="form-select" id="addTaxDeclared" style="width:100%;">
+                            <option value="true">是</option>
+                            <option value="false">否</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">逾期次数</label>
+                        <input class="form-control" type="number" id="addOverdueCount" value="0" min="0" style="width:100%;">
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">库存现金余额（元）</label>
+                        <input class="form-control" type="number" step="any" id="addCashBalance" placeholder="可选" style="width:100%;">
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">应收账款挂账月数</label>
+                        <input class="form-control" type="number" step="any" id="addArMonths" placeholder="可选" style="width:100%;">
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">应付账款挂账月数</label>
+                        <input class="form-control" type="number" step="any" id="addApMonths" placeholder="可选" style="width:100%;">
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">其他应收款挂账月数</label>
+                        <input class="form-control" type="number" step="any" id="addOtherArMonths" placeholder="可选" style="width:100%;">
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">其他应付款挂账月数</label>
+                        <input class="form-control" type="number" step="any" id="addOtherApMonths" placeholder="可选" style="width:100%;">
+                    </div>
+                    <div style="display:flex;gap:12px;margin-bottom:14px;">
+                        <div style="flex:1;">
+                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">未分配利润（元）</label>
+                            <input class="form-control" type="number" step="any" id="addRetainedEarnings" placeholder="可选" style="width:100%;">
+                        </div>
+                        <div style="flex:1;">
+                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">资产总额（元）</label>
+                            <input class="form-control" type="number" step="any" id="addTotalAssets" placeholder="可选" style="width:100%;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">股东借款挂账月数</label>
+                        <input class="form-control" type="number" step="any" id="addShareholderLoanMonths" placeholder="可选" style="width:100%;">
+                    </div>
+                    <div style="display:flex;gap:12px;margin-bottom:14px;">
+                        <div style="flex:1;">
+                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">暂估挂账月数</label>
+                            <input class="form-control" type="number" step="any" id="addEstimatedMonths" placeholder="可选" style="width:100%;">
+                        </div>
+                        <div style="flex:1;">
+                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#555;">12月暂估未冲销</label>
+                            <select class="form-select" id="addHasYearEndEstimated" style="width:100%;">
+                                <option value="false">否</option>
+                                <option value="true">是</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAddModal()">取消</button>
+                <button type="button" class="btn btn-primary" onclick="saveIndicator()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal" id="detailModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">风险指标详情</h5>
+                <button type="button" class="btn-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="detailModalBody">
+                <!-- 动态填充 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeDetailModal()">关闭</button>
+                <button type="button" class="btn btn-outline-danger" onclick="deleteCurrentIndicator()">删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API = '/api/v1';
+const token = localStorage.getItem('access_token') || '';
+
+let currentDetailId = null;
+
+function authHeaders() { 
+    const headers = {'Content-Type': 'application/json'};
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    return headers;
+}
+
+async function api(url, opts={}) {
+    const res = await fetch(API + url, {...opts, headers:{...authHeaders(),...(opts.headers||{})}, credentials:'include'});
+    if (res.status === 401) { localStorage.clear(); location.href='/admin/login'; return null; }
+    return res;
+}
+
+function showToast(msg, type='info') {
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+function closeDetailModal() { document.getElementById('detailModal').classList.remove('show'); }
+
+async function doLogout() {
+    await api('/auth/logout', {method:'POST'});
+    localStorage.clear();
+    location.href='/admin/login';
+}
+
+let currentPage = 1;
+const pageSize = 20;
+
+const LEVEL_BADGE = {
+    normal:  '<span class="badge badge-green">正常</span>',
+    remind:  '<span class="badge" style="background:#ff9f43;color:#fff">提醒</span>',
+    warning: '<span class="badge badge-yellow">预警</span>',
+    major:   '<span class="badge badge-red">重大风险</span>',
+    major_risk: '<span class="badge badge-red">重大风险</span>',
+};
+
+const LEVEL_TEXT = {
+    normal: '正常',
+    remind: '提醒',
+    warning: '预警',
+    major: '重大风险',
+    major_risk: '重大风险',
+};
+
+const RISK_NAMES = {
+    risk1: '是否按期申报',
+    risk2: '库存现金是否异常',
+    risk3: '往来款项长期挂账',
+    risk4: '未分配利润异常',
+    risk5: '股东及关联方占款',
+    risk6: '暂估入账异常',
+};
+
+(function() {
+    if (!token) { location.href='/admin/login'; return; }
+    const ui = JSON.parse(localStorage.getItem('user_info') || '{}');
+    const name = ui.real_name || ui.username || '管理员';
+    document.getElementById('currentUserName').textContent = name;
+    document.getElementById('headerUserName').textContent = name;
+    if (ui.real_name) document.getElementById('userAvatar').textContent = ui.real_name.charAt(0).toUpperCase();
+    loadCompanyOptions();
+    loadIndicators(1);
+})();
+
+// 企业搜索下拉框相关变量
+let gCompanyList = []; // 缓存企业列表
+
+async function loadCompanyOptions() {
+    const optionsContainer = document.getElementById('addCompanyOptions');
+    const input = document.getElementById('addCompanyInput');
+    optionsContainer.innerHTML = '<div class="search-select-loading">加载中...</div>';
+    // 添加超时控制器
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    try {
+        const url = '/companies/simple-list';
+        const res = await fetch(API + url, {
+            headers: authHeaders(),
+            credentials: 'include',
+            signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        if (!res) {
+            optionsContainer.innerHTML = '<div class="search-select-empty">认证失败，请刷新重试</div>';
+            return;
+        }
+        const data = await res.json();
+        if (data.code === 200) {
+            gCompanyList = data.data || [];
+            renderCompanyOptions('');
+        } else {
+            optionsContainer.innerHTML = '<div class="search-select-empty">加载失败：' + (data.message || '未知错误') + '</div>';
+        }
+    } catch (err) {
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+            optionsContainer.innerHTML = '<div class="search-select-empty">请求超时</div>';
+        } else {
+            optionsContainer.innerHTML = '<div class="search-select-empty">加载异常：' + err.message + '</div>';
+        }
+    }
+}
+
+function renderCompanyOptions(filter) {
+    const optionsContainer = document.getElementById('addCompanyOptions');
+    const hiddenInput = document.getElementById('addCompany');
+    const input = document.getElementById('addCompanyInput');
+    const selectedId = hiddenInput.value;
+    const filtered = gCompanyList.filter(c => 
+        (c.name || '').toLowerCase().includes(filter.toLowerCase())
+    );
+    if (filtered.length === 0) {
+        optionsContainer.innerHTML = '<div class="search-select-empty">无匹配企业</div>';
+        return;
+    }
+    optionsContainer.innerHTML = filtered.map(c => {
+        const isSelected = c.id == selectedId;
+        return `<div class="search-select-option ${isSelected ? 'selected' : ''}" data-id="${c.id}" data-name="${c.name || '未命名企业'}">
+            ${c.name || '未命名企业'}
+        </div>`;
+    }).join('');
+    // 绑定点击事件
+    optionsContainer.querySelectorAll('.search-select-option').forEach(el => {
+        el.onclick = () => {
+            const id = el.dataset.id;
+            const name = el.dataset.name;
+            document.getElementById('addCompany').value = id;
+            document.getElementById('addCompanyInput').value = name;
+            document.getElementById('addCompanyDropdown').style.display = 'none';
+            renderCompanyOptions(name); // 更新选中状态
+        };
+    });
+}
+
+function initCompanySearch() {
+    const input = document.getElementById('addCompanyInput');
+    const dropdown = document.getElementById('addCompanyDropdown');
+    // 输入搜索
+    input.addEventListener('input', (e) => {
+        const filter = e.target.value.trim();
+        if (gCompanyList.length > 0) {
+            renderCompanyOptions(filter);
+        }
+        dropdown.style.display = 'block';
+    });
+    // 获取焦点显示下拉
+    input.addEventListener('focus', () => {
+        if (gCompanyList.length === 0) {
+            loadCompanyOptions().then(() => {
+                dropdown.style.display = 'block';
+            });
+        } else {
+            dropdown.style.display = 'block';
+        }
+    });
+    // 点击外部关闭
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-select-wrapper')) {
+            dropdown.style.display = 'none';
+        }
+    });
+}
+
+// 页面初始化时预加载企业列表
+(function() {
+    if (!token) { location.href='/admin/login'; return; }
+    const ui = JSON.parse(localStorage.getItem('user_info') || '{}');
+    const name = ui.real_name || ui.username || '管理员';
+    document.getElementById('currentUserName').textContent = name;
+    document.getElementById('headerUserName').textContent = name;
+    if (ui.real_name) document.getElementById('userAvatar').textContent = ui.real_name.charAt(0).toUpperCase();
+    initCompanySearch(); // 初始化搜索下拉
+    loadCompanyOptions(); // 预加载企业列表
+    loadIndicators(1);
+})();
+
+function closeAddModal() { document.getElementById('addModal').classList.remove('show'); }
+
+async function openAddModal() {
+    document.getElementById('addModalTitle').textContent = '录入风险指标';
+    // 重置所有字段
+    document.getElementById('addCompany').value = '';
+    document.getElementById('addCompanyInput').value = '';
+    document.getElementById('addPeriod').value = '';
+    document.getElementById('addTaxDeclared').value = 'true';
+    document.getElementById('addOverdueCount').value = '0';
+    document.getElementById('addCashBalance').value = '';
+    document.getElementById('addArMonths').value = '';
+    document.getElementById('addApMonths').value = '';
+    document.getElementById('addOtherArMonths').value = '';
+    document.getElementById('addOtherApMonths').value = '';
+    document.getElementById('addRetainedEarnings').value = '';
+    document.getElementById('addTotalAssets').value = '';
+    document.getElementById('addShareholderLoanMonths').value = '';
+    document.getElementById('addEstimatedMonths').value = '';
+    document.getElementById('addHasYearEndEstimated').value = 'false';
+    document.getElementById('addId').value = '';
+    // 确保企业列表已加载
+    if (gCompanyList.length === 0) {
+        await loadCompanyOptions();
+    }
+    document.getElementById('addModal').classList.add('show');
+}
+
+async function saveIndicator() {
+    const companyId = document.getElementById('addCompany').value;
+    const period = document.getElementById('addPeriod').value.trim();
+    if (!companyId || !period) {
+        showToast('请选择企业并填写统计期间', 'warning');
+        return;
+    }
+    const body = {
+        company_id: parseInt(companyId),
+        period: period,
+        tax_declared: document.getElementById('addTaxDeclared').value === 'true',
+        overdue_count: parseInt(document.getElementById('addOverdueCount').value) || 0,
+        cash_balance: toFloat('addCashBalance'),
+        ar_overdue_months: toFloat('addArMonths'),
+        ap_overdue_months: toFloat('addApMonths'),
+        other_ar_months: toFloat('addOtherArMonths'),
+        other_ap_months: toFloat('addOtherApMonths'),
+        retained_earnings: toFloat('addRetainedEarnings'),
+        total_assets: toFloat('addTotalAssets'),
+        shareholder_loan_months: toFloat('addShareholderLoanMonths'),
+        estimated_entry_months: toFloat('addEstimatedMonths'),
+        has_year_end_estimated: document.getElementById('addHasYearEndEstimated').value === 'true',
+    };
+    const res = await api('/risk-indicators', {
+        method: 'POST',
+        body: JSON.stringify(body),
+    });
+    if (!res) return;
+    const data = await res.json();
+    if (data.code === 200) {
+        closeAddModal();
+        loadIndicators(1);
+        showToast('录入成功', 'success');
+    } else {
+        showToast(data.message || '录入失败', 'danger');
+    }
+}
+
+function toFloat(id) {
+    const v = document.getElementById(id).value.trim();
+    return v ? parseFloat(v) : null;
+}
+
+// ===== Import Functions =====
+let selectedImportFile = null;
+
+function openImportModal() {
+    // 关闭导出弹窗，避免两弹窗同时显示
+    const em = document.getElementById('exportModal');
+    if (em) em.style.display = 'none';
+    // 重置上传区
+    const zone = document.getElementById('uploadZone');
+    if (zone) {
+        zone.innerHTML =
+            '<div class="icon">📤</div>' +
+            '<div style="font-weight:500;">点击选择文件或拖拽文件到此处</div>' +
+            '<div class="tip">支持 .xlsx / .xls 文件，建议先下载导入模板</div>';
+    }
+    const fileInput = document.getElementById('importFileInput');
+    if (fileInput) fileInput.value = '';
+    selectedImportFile = null;
+    const footer = document.getElementById('importFooter');
+    if (footer) footer.style.display = 'none';
+    const modal = document.getElementById('importModal');
+    if (modal) {
+        modal.style.cssText = 'display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;';
+    }
+    const box = modal ? modal.querySelector('.modal-box') : null;
+    if (box) box.style.display = 'block';
+}
+
+function closeImportModal() {
+    const modal = document.getElementById('importModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function handleFileSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    selectedImportFile = file;
+    // 更新上传区文字，不碰文件input
+    const zone = document.getElementById('uploadZone');
+    zone.innerHTML =
+        '<div class="icon">📄</div>' +
+        '<div style="font-weight:500;">' + file.name + '</div>' +
+        '<div class="tip">点击或拖拽文件到此处重新选择</div>';
+    document.getElementById('importFooter').style.display = 'flex';
+}
+
+function downloadImportTemplate() {
+    fetch(API + '/risk-indicators/template', { headers: authHeaders() })
+        .then(r => { if (!r.ok) throw new Error('获取模板失败'); return r.blob(); })
+        .then(blob => {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = '风险指标导入模板.xlsx';
+            a.click();
+        })
+        .catch(e => showToast('下载模板失败: ' + e.message, 'error'));
+}
+
+async function doImport() {
+    if (!selectedImportFile) {
+        showToast('请先选择文件', 'warning');
+        return;
+    }
+    const formData = new FormData();
+    formData.append('file', selectedImportFile);
+    document.getElementById('importConfirmBtn').disabled = true;
+    document.getElementById('importConfirmBtn').textContent = '导入中...';
+    try {
+        const res = await fetch(API + '/risk-indicators/import', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token },
+            body: formData,
+        });
+        const data = await res.json();
+        const resultDiv = document.getElementById('importResult');
+        resultDiv.style.display = 'block';
+        if (data.code === 200) {
+            const d = data.data;
+            resultDiv.className = 'import-result success';
+            resultDiv.innerHTML = `<strong>导入成功！</strong><br>成功：${d.created} 条`;
+            if (d.skipped > 0) resultDiv.innerHTML += `<br>跳过：${d.skipped} 条`;
+            if (d.errors && d.errors.length) {
+                resultDiv.innerHTML += `<br>失败：${d.errors.length} 条`;
+                resultDiv.innerHTML += `<div class="err-item">${d.errors.slice(0, 5).join('<br>')}</div>`;
+            }
+            setTimeout(() => { closeImportModal(); loadIndicators(1); }, 1500);
+        } else {
+            resultDiv.className = 'import-result error';
+            resultDiv.innerHTML = `<strong>导入失败</strong><br>${data.message || JSON.stringify(data)}`;
+        }
+        document.getElementById('importConfirmBtn').disabled = false;
+        document.getElementById('importConfirmBtn').textContent = '开始导入';
+    } catch (e) {
+        const resultDiv = document.getElementById('importResult');
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'import-result error';
+        resultDiv.innerHTML = `<strong>导入失败</strong><br>${e.message}`;
+        document.getElementById('importConfirmBtn').disabled = false;
+        document.getElementById('importConfirmBtn').textContent = '开始导入';
+    }
+}
+
+function getHealthClass(score) {
+    if (score >= 80) return 'health-high';
+    if (score >= 60) return 'health-mid';
+    return 'health-low';
+}
+
+function renderRiskDots(levels) {
+    return Object.entries(levels).map(([key, level]) => {
+        return `<span class="risk-dot ${level}" title="${RISK_NAMES[key]}: ${LEVEL_TEXT[level] || level}"></span>`;
+    }).join('');
+}
+
+async function loadIndicators(page = 1) {
+    const tbody = document.getElementById('indicatorTableBody');
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">加载中...</td></tr>';
+    try {
+        const keyword = document.getElementById('keywordInput').value.trim();
+        const level = document.getElementById('levelFilter').value;
+        const params = new URLSearchParams({ page, page_size: pageSize });
+        if (keyword) params.set('keyword', keyword);
+        if (level) params.set('risk_level', level);
+        const res = await api(`/risk-indicators/overview?${params}`);
+        if (!res) {
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-state">加载失败，请刷新页面重试</td></tr>';
+            return;
+        }
+        const data = await res.json();
+        if (data.code !== 200) {
+            showToast(data.message || '加载数据失败', 'danger');
+            tbody.innerHTML = `<tr><td colspan="7" class="empty-state">加载失败: ${data.message || '未知错误'}</td></tr>`;
+            return;
+        }
+        currentPage = page;
+        const { items, total } = data.data;
+        document.getElementById('pageInfo').textContent = `共 ${total} 条`;
+        if (!items || !items.length) {
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-state">暂无风险指标数据，请先在企业信息中录入</td></tr>';
+            document.getElementById('pagination').innerHTML = '';
+            return;
+        }
+        tbody.innerHTML = items.map(item => `
+        <tr onclick="showDetail(${item.company_id},'${(item.company_name||'').replace(/'/g,"\\'")}')">
+            <td style="padding-left:14px;" onclick="event.stopPropagation()"><input type="checkbox" class="row-check" value='${JSON.stringify({company_id:item.company_id,period:item.period})}' onchange="updateBatchUI()" style="cursor:pointer;width:16px;height:16px;"></td>
+            <td style="padding-left:6px;font-weight:500">${item.company_name || '--'}</td>
+            <td>${item.period || '--'}</td>
+            <td><span class="health-score ${getHealthClass(item.health_score || 100)}">${item.health_score ?? 100}</span></td>
+            <td><div class="risk-mini">${renderRiskDots(item.risk_levels || {})}</div></td>
+            <td class="text-muted small">${item.updated_at ? new Date(item.updated_at).toLocaleString('zh-CN') : '--'}</td>
+            <td onclick="event.stopPropagation()">
+                <button class="btn-outline-secondary" onclick="showDetail(${item.company_id},'${(item.company_name||'').replace(/'/g,"\\'")}')">查看详情</button>
+            </td>
+        </tr>`).join('');
+        renderPagination(total, page);
+    } catch (err) {
+        console.error('loadIndicators error:', err);
+        showToast('加载失败: ' + err.message, 'danger');
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">加载失败，请刷新页面重试<br><small style="color:#999">${err.message}</small></td></tr>`;
+    }
+}
+
+function renderPagination(total, page) {
+    const pages = Math.ceil(total / pageSize);
+    const ul = document.getElementById('pagination');
+    ul.innerHTML = '';
+    if (pages <= 1) return;
+    for (let i = 1; i <= Math.min(pages, 10); i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i===page?'active':''}`;
+        li.innerHTML = `<a class="page-link" href="#" onclick="loadIndicators(${i});return false;">${i}</a>`;
+        ul.appendChild(li);
+    }
+}
+
+async function showDetail(companyId, companyName) {
+    currentDetailId = companyId;
+    const modal = document.getElementById('detailModal');
+    const body = document.getElementById('detailModalBody');
+    body.innerHTML = '<div style="text-align:center;padding:40px;color:#aaa;">加载中...</div>';
+    modal.classList.add('show');
+
+    // 加载指标数据和AI报告
+    const [indRes, reportsRes] = await Promise.all([
+        api(`/risk-indicators/company/${companyId}`),
+        api(`/risk-indicators/company/${companyId}/ai-reports`)
+    ]);
+
+    if (!indRes) return;
+    const indData = await indRes.json();
+    if (indData.code !== 200) {
+        body.innerHTML = `<div style="text-align:center;padding:40px;color:#e74c3c;">加载失败: ${indData.message}</div>`;
+        return;
+    }
+    const ind = indData.data;
+
+    const levels = {};
+    for (let i = 1; i <= 6; i++) {
+        levels['risk' + i] = ind['risk' + i + '_level'] || 'normal';
+    }
+
+    // 构建指标详情HTML
+    const indicatorsHtml = Object.entries(RISK_NAMES).map(([key, name]) => {
+        const level = levels[key] || 'normal';
+        const reason = ind[key + '_reason'] || '';
+        // 获取对应的指标值
+        let valueDisplay = '';
+        let unit = '';
+        if (key === 'risk1') {
+            valueDisplay = ind.tax_declared ? '是' : '否';
+            if (ind.overdue_count > 0) {
+                valueDisplay += `（逾期 ${ind.overdue_count} 次）`;
+            }
+        } else if (key === 'risk2') {
+            valueDisplay = ind.cash_balance != null ? ind.cash_balance.toLocaleString() : '--';
+            unit = '元';
+        } else if (key === 'risk3') {
+            const months = [
+                ind.ar_overdue_months,
+                ind.ap_overdue_months,
+                ind.other_ar_months,
+                ind.other_ap_months
+            ].filter(v => v != null);
+            valueDisplay = months.length ? Math.max(...months).toFixed(1) : '--';
+            unit = '个月';
+        } else if (key === 'risk4') {
+            valueDisplay = ind.retained_earnings != null ? ind.retained_earnings.toLocaleString() : '--';
+            unit = '元';
+        } else if (key === 'risk5') {
+            valueDisplay = ind.shareholder_loan_months != null ? ind.shareholder_loan_months.toFixed(1) : '--';
+            unit = '个月';
+        } else if (key === 'risk6') {
+            valueDisplay = ind.estimated_entry_months != null ? ind.estimated_entry_months.toFixed(1) : '--';
+            unit = '个月';
+        }
+
+        return `
+        <div class="detail-row" style="flex-wrap:wrap;">
+            <div class="detail-label">${name}</div>
+            <div class="detail-value" style="flex:1 0 300px;">
+                ${valueDisplay}${unit ? `<span style="color:#888;font-size:12px;"> ${unit}</span>` : ''}
+                <span style="margin-left:10px;">${LEVEL_BADGE[level] || LEVEL_BADGE.normal}</span>
+                ${reason ? `<div style="color:#888;font-size:12px;margin-top:4px;">原因：${reason}</div>` : ''}
+            </div>
+        </div>`;
+    }).join('');
+
+    // 构建AI评估历史HTML
+    let aiReportsHtml = '<div style="color:#aaa;text-align:center;padding:20px;">暂无AI评估记录</div>';
+    if (reportsRes) {
+        const reportsData = await reportsRes.json();
+        if (reportsData.code === 200 && reportsData.data && reportsData.data.length > 0) {
+            aiReportsHtml = reportsData.data.map(r => `
+                <div style="margin-bottom:16px;padding:14px;background:#f9f9f9;border-radius:8px;">
+                    <div style="font-size:12px;color:#888;margin-bottom:8px;">
+                        指标${r.risk_index}评估 · ${r.created_at ? new Date(r.created_at).toLocaleString('zh-CN') : '--'}
+                    </div>
+                    <div style="font-size:13px;color:#333;line-height:1.6;">${r.report_content || ''}</div>
+                </div>
+            `).join('');
+        }
+    }
+
+    body.innerHTML = `
+    <div class="detail-section">
+        <div class="detail-section-title">基本信息</div>
+        <div class="detail-row">
+            <div class="detail-label">企业名称</div>
+            <div class="detail-value">${companyName || '--'}</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">统计期间</div>
+            <div class="detail-value">${ind.period || '--'}</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">健康评分</div>
+            <div class="detail-value"><span class="health-score ${getHealthClass(ind.health_score || 100)}">${ind.health_score ?? 100}</span></div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">更新时间</div>
+            <div class="detail-value">${ind.updated_at ? new Date(ind.updated_at).toLocaleString('zh-CN') : '--'}</div>
+        </div>
+    </div>
+    <div class="detail-section">
+        <div class="detail-section-title">六项风险指标详情</div>
+        ${indicatorsHtml}
+    </div>
+    <div class="detail-section">
+        <div class="detail-section-title">AI评估记录</div>
+        ${aiReportsHtml}
+    </div>`;
+}
+
+async function deleteCurrentIndicator() {
+    if (!currentDetailId) return;
+    if (!confirm('确定要删除该企业当前期间的风险指标记录吗？此操作不可恢复！')) return;
+    const res = await api(`/risk-indicators/${currentDetailId}`, { method: 'DELETE' });
+    if (!res) return;
+    const data = await res.json();
+    if (data.code === 200) {
+        closeDetailModal();
+        loadIndicators(currentPage);
+        showToast('删除成功', 'success');
+    } else {
+        showToast(data.message || '删除失败', 'danger');
+    }
+}
+
+function getSelectedItems() {
+    return Array.from(document.querySelectorAll('.row-check:checked')).map(el => JSON.parse(el.value));
+}
+
+function updateBatchUI() {
+    const items = getSelectedItems();
+    const count = items.length;
+    const batchDiv = document.getElementById('batchActions');
+    if (count > 0) {
+        batchDiv.style.display = 'flex';
+        document.getElementById('selectedCount').textContent = `已选 ${count} 项`;
+    } else {
+        batchDiv.style.display = 'none';
+    }
+    const allChecks = document.querySelectorAll('.row-check');
+    const selectAll = document.getElementById('selectAll');
+    if (allChecks.length > 0 && count === allChecks.length) {
+        selectAll.checked = true;
+        selectAll.indeterminate = false;
+    } else if (count > 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = true;
+    } else {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+    }
+}
+
+function toggleSelectAll() {
+    const checked = document.getElementById('selectAll').checked;
+    document.querySelectorAll('.row-check').forEach(el => { el.checked = checked; });
+    updateBatchUI();
+}
+
+function clearSelection() {
+    document.querySelectorAll('.row-check').forEach(el => { el.checked = false; });
+    document.getElementById('selectAll').checked = false;
+    updateBatchUI();
+}
+
+async function batchDeleteIndicators() {
+    const items = getSelectedItems();
+    if (!items.length) { showToast('请先选择要删除的记录', 'warning'); return; }
+    if (!confirm(`确定要删除选中的 ${items.length} 条记录吗？此操作不可恢复！`)) return;
+    const res = await api('/risk-indicators/batch-delete', {
+        method: 'POST',
+        body: JSON.stringify({ items }),
+    });
+    if (!res) return;
+    const data = await res.json();
+    if (data.code === 200) {
+        clearSelection();
+        loadIndicators(currentPage);
+        showToast(`成功删除 ${data.data.deleted} 条记录`, 'success');
+    } else {
+        showToast(data.message || '批量删除失败', 'danger');
+    }
+}
+
+// ===== Export Functions =====
+let selectedExportScope = 'filtered';
+
+function openExportModal() {
+    // 关闭导入弹窗，避免两弹窗同时显示
+    const im = document.getElementById('importModal');
+    if (im) im.style.display = 'none';
+    selectedExportScope = 'filtered';
+    const title = document.getElementById('exportModalTitle');
+    if (title) title.textContent = '📥 导出风险指标';
+    document.querySelectorAll('#exportRadioGroup .radio-item').forEach((el, i) => {
+        el.classList.toggle('selected', i === 0);
+    });
+    const em = document.getElementById('exportModal');
+    if (em) em.style.cssText = 'display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;';
+}
+
+function selectExportOption(el, val) {
+    selectedExportScope = val;
+    document.querySelectorAll('#exportRadioGroup .radio-item').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+}
+
+async function doExport() {
+    const em = document.getElementById('exportModal');
+    if (em) em.style.display = 'none';
+    const keyword = document.getElementById('keywordInput').value.trim();
+    const level = document.getElementById('levelFilter').value;
+    let url = `/risk-indicators/export`;
+    const params = [];
+    if (keyword) params.push(`keyword=${encodeURIComponent(keyword)}`);
+    if (level && selectedExportScope === 'filtered') params.push(`risk_level=${level}`);
+    if (params.length) url += '?' + params.join('&');
+    try {
+        const res = await fetch(API + url, { headers: authHeaders() });
+        if (!res.ok) throw new Error('导出失败');
+        const blob = await res.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `risk_indicators_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`;
+        a.click();
+        showToast('导出成功！', 'success');
+    } catch (e) {
+        showToast('导出失败：' + e.message, 'danger');
+    }
+}
+
+// Drag and drop for import modal
+window.addEventListener('DOMContentLoaded', () => {
+    const uploadZone = document.getElementById('uploadZone');
+    if (uploadZone) {
+        uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+        uploadZone.addEventListener('drop', e => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
+                const input = document.getElementById('importFileInput');
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+                handleFileSelect(input);
+            }
+        });
+    }
+});
+
+</script>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 id="exportModalTitle">📥 导出数据</h3>
+            <button class="close-btn" onclick="document.getElementById('exportModal').style.display='none'">✕</button>
+        </div>
+        <p style="font-size:13px;color:#888;margin-bottom:14px;">请选择导出范围：</p>
+        <div class="radio-group" id="exportRadioGroup">
+            <div class="radio-item selected" onclick="selectExportOption(this,'filtered')">
+                <input type="radio" name="export_scope" value="filtered" checked>
+                <span>📋 导出当前筛选结果</span>
+            </div>
+            <div class="radio-item" onclick="selectExportOption(this,'all')">
+                <input type="radio" name="export_scope" value="all">
+                <span>🌐 导出全部数据</span>
+            </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+            <button class="btn btn-outline" onclick="document.getElementById('exportModal').style.display='none'">取消</button>
+            <button class="btn btn-primary" onclick="doExport()">确认导出</button>
+        </div>
+    </div>
+</div>
+<!-- Import Modal -->
+<div class="modal-overlay" id="importModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>📤 导入风险指标</h3>
+            <button class="close-btn" onclick="closeImportModal()">✕</button>
+        </div>
+        <div id="importResult"></div>
+        <input type="file" id="importFileInput" accept=".xlsx,.xls" onchange="handleFileSelect(this)" style="display:none;">
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('importFileInput').click()">
+            <div class="icon">📤</div>
+            <div style="font-weight:500;">点击选择文件或拖拽文件到此处</div>
+            <div class="tip">支持 .xlsx / .xls 文件，建议先下载导入模板</div>
+        </div>
+        <div style="margin-top:12px;text-align:center;">
+            <button class="btn btn-outline btn-sm" onclick="downloadImportTemplate()">📥 下载导入模板</button>
+        </div>
+        <div id="importFooter" style="display:none;justify-content:flex-end;gap:10px;margin-top:20px;">
+            <button class="btn btn-outline" onclick="closeImportModal()">关闭</button>
+            <button class="btn btn-primary" id="importConfirmBtn" onclick="doImport()">开始导入</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

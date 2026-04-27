@@ -1,0 +1,74 @@
+<!-- pages/ai-eval/ai-eval.wxml -->
+<view class="page-container">
+
+  <!-- 指标信息卡片 -->
+  <view class="card indicator-card">
+    <view class="indicator-header">
+      <view class="indicator-icon">🔍</view>
+      <view class="indicator-meta">
+        <text class="indicator-name">{{ indicatorName }}</text>
+        <view class="level-badge {{ levelCls }}">{{ levelText }}</view>
+      </view>
+    </view>
+    <view class="indicator-reason" wx:if="{{ reason }}">
+      <text class="reason-label">触发原因</text>
+      <text class="reason-text">{{ reason }}</text>
+    </view>
+  </view>
+
+  <!-- AI评估结果区域 -->
+  <view class="card eval-card">
+    <view class="eval-header">
+      <view class="flex-row">
+        <text class="ai-icon">🤖</text>
+        <text class="eval-title">AI 专业风险解读</text>
+      </view>
+      <button class="btn-refresh" catchtap="refreshEval" wx:if="{{ !generating }}">
+        <text class="btn-refresh-icon">↻</text>重新生成
+      </button>
+    </view>
+
+    <!-- 生成中状态 -->
+    <view class="generating-state" wx:if="{{ generating }}">
+      <view class="typing-indicator">
+        <view class="dot"></view>
+        <view class="dot"></view>
+        <view class="dot"></view>
+      </view>
+      <text class="generating-text">AI正在分析风险，请稍候...</text>
+    </view>
+
+    <!-- 错误状态 -->
+    <view class="error-state" wx:elif="{{ hasError }}">
+      <text class="error-icon">⚠️</text>
+      <text class="error-text">{{ errorMsg }}</text>
+      <button class="btn-retry" catchtap="loadEval">重试</button>
+    </view>
+
+    <!-- 评估内容 -->
+    <view class="eval-content" wx:elif="{{ evalContent }}">
+      <text class="eval-text" selectable>{{ evalContent }}</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-eval" wx:else>
+      <text>点击下方按钮获取AI专业分析</text>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-area" wx:if="{{ !generating }}">
+    <button class="btn-primary" catchtap="loadEval" wx:if="{{ !evalContent && !hasError }}">
+      <text>🤖 开始AI分析</text>
+    </button>
+    <button class="btn-secondary" catchtap="goRiskList" wx:if="{{ evalContent }}">
+      返回风险列表
+    </button>
+  </view>
+
+  <!-- 免责声明 -->
+  <view class="disclaimer">
+    <text>⚠️ AI评估结果仅供参考，不构成专业法律或财务建议。具体决策请咨询专业顾问。</text>
+  </view>
+
+</view>
